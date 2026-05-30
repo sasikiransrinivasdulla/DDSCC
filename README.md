@@ -28,6 +28,24 @@ When a user logs in for the very first time, instead of directly entering the da
 
 ---
 
+## 🌅 Daily Mission & Morning Oath Engine
+
+To prevent mindless tracking or chaotic preparation sessions, DDSCC enforces a **Day-Start Intentions Gate** using a dedicated `/daily-oath` wizard:
+- **Intention Interception Middleware**: Authenticated users who attempt to access `/dashboard` are intercepted on mount. If no daily commitment exists in MongoDB for the current calendar date (`YYYY-MM-DD`), they are instantly routed to `/daily-oath`.
+- **8-Step Glassmorphic Oath Wizard**:
+  1. **Daily Commitment** — The ultimate reminder: *"Today matters. What are you building?"*
+  2. **DSA Counts** — Inputs for Easy, Medium, and Hard target volumes, auto-calculating total targets.
+  3. **Development Building** — Toggles planning detail fields (Project Name, planned hours slider, GitHub push check, technology learning scopes).
+  4. **Dynamic Skills** — Interactive tags lists with `+ Add Skill` enabling registration of frameworks (e.g. Agentic AI, System Design).
+  5. **CS Fundamentals** — Subject toggles (OOPS, OS, CN, DBMS, CO, SE) with slide effort percentages (`0% -> 100%`).
+  6. **Communication Prep** — Checkboxes for English, Mock interviews, LinkedIn activity, and a confidence level indicator (`1 -> 5`).
+  7. **Aptitude Focus** — Specific reasoning/quant topics and planned questions, featuring quick practice external anchors for IndiaBix.
+  8. **The Oath Seal** — Emotional commitment checkboxes and signatures physically required to enter their workspace.
+- **Dynamic Live Dashboard Rendering**: Once sealed, the dashboard queries Mongoose to render a clean, high-fidelity **"Morning Commitment Summary"** matching their active database inputs.
+- **Unique Day Constraints**: Features a composite unique index on `{ userId: 1, dateString: 1 }` preventing accidental duplicate mission creations per day.
+
+---
+
 ## 🎨 Premium UI & Readability Refinements
 
 DDSCC operates under a high-contrast, elite digital design system blending custom **matte black backdrops** (`#050505`) with **vibrant emerald styling** (`#10B981`):
@@ -89,10 +107,10 @@ DDSCC employs a premium, security-conscious authentication system:
    npm run lint
    ```
 
+
 ---
 
-## 🤝 Connect with the Developer
+## Developer / Connect With Me
 
-Built with focus and dedication by **Sasi Kiran Srinivas**. Let's connect and build the next frontier of high-performance SaaS environments together!
-
-🔗 **GitHub Connect**: [sasikiransrinivasdulla](https://github.com/sasikiransrinivasdulla)
+GitHub:
+https://github.com/sasikiransrinivasdulla

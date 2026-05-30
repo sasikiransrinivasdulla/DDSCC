@@ -32,6 +32,7 @@ import { DisciplineKey } from '@/types';
 export default function DashboardPage() {
   const router = useRouter();
   const [isPageLoading, setIsPageLoading] = React.useState(true);
+  const [todayMission, setTodayMission] = React.useState<any>(null);
   
   const { 
     profile, 
@@ -69,6 +70,18 @@ export default function DashboardPage() {
             role: data.user.targetRole || 'Aspiring Computer Engineer',
             oathText: data.user.motivationText || 'I will dedicate focused, deliberate effort toward my placement goals today. No excuses, no shortcuts, just relentless self-growth.',
           });
+
+          // Check if today's daily mission exists
+          const missionCheck = await fetch('/api/daily-oath');
+          if (missionCheck.ok) {
+            const missionData = await missionCheck.json();
+            if (!missionData.exists) {
+              router.push('/daily-oath');
+              return;
+            } else {
+              setTodayMission(missionData.mission);
+            }
+          }
         }
       } catch (error) {
         console.error('Session hydration failed:', error);
@@ -435,6 +448,117 @@ export default function DashboardPage() {
                 &ldquo;{profile.oathText}&rdquo;
               </p>
             </Card>
+
+            {/* TODAY'S MISSION SUMMARY CARD */}
+            {todayMission && (
+              <Card className="p-6 bg-card-surface border-border-subtle relative overflow-hidden glow-emerald-sm">
+                <div className="absolute top-0 left-0 right-0 h-[2px] bg-primary-accent/30" />
+                <span className="text-xs uppercase font-extrabold tracking-widest text-primary-accent font-heading">
+                  Today&apos;s Intentions
+                </span>
+                <h4 className="text-base font-black text-white uppercase tracking-wider font-heading mt-1 mb-4">
+                  Morning Commitment
+                </h4>
+
+                <div className="space-y-4">
+                  {/* DSA targets info */}
+                  <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-1.5">
+                    <div className="flex justify-between items-center text-xs font-bold text-white">
+                      <span>DSA Problems</span>
+                      <span className="text-primary-accent font-extrabold">{todayMission.dsaTargets?.total || 0} Target</span>
+                    </div>
+                    <div className="flex gap-2 text-[10px] text-muted-text uppercase font-bold">
+                      <span>Easy: {todayMission.dsaTargets?.easy || 0}</span>
+                      <span>•</span>
+                      <span>Medium: {todayMission.dsaTargets?.medium || 0}</span>
+                      <span>•</span>
+                      <span>Hard: {todayMission.dsaTargets?.hard || 0}</span>
+                    </div>
+                  </div>
+
+                  {/* Dev targets info */}
+                  {todayMission.development?.isBuilding ? (
+                    <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-1.5">
+                      <div className="flex justify-between items-center text-xs font-bold text-white">
+                        <span>Active Building: {todayMission.development.projectName}</span>
+                        <span className="text-primary-accent font-extrabold">{todayMission.development.plannedHours}h Plan</span>
+                      </div>
+                      <p className="text-[11px] text-muted-text leading-relaxed">
+                        {todayMission.development.projectDesc}
+                      </p>
+                      <div className="flex gap-2 text-[10px] text-muted-text font-bold uppercase pt-1">
+                        {todayMission.development.willPushGithub && <span>Pushing Commits</span>}
+                        {todayMission.development.willPushGithub && todayMission.development.exploreNew && <span>•</span>}
+                        {todayMission.development.exploreNew && <span>Exploring Tech</span>}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-3 bg-[#050505]/40 rounded-xl border border-border-subtle/30 text-center text-xs italic text-muted-text/50">
+                      No development builds planned for today.
+                    </div>
+                  )}
+
+                  {/* Skills tags list */}
+                  {todayMission.skills?.length > 0 && (
+                    <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-2">
+                      <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider block">Target Skills</span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {todayMission.skills.map((skill: string, i: number) => (
+                          <span key={i} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary-accent/5 border border-primary-accent/15 text-white">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CS subjects list */}
+                  {todayMission.coreSubjects?.length > 0 && (
+                    <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-2">
+                      <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider block">CS Fundamentals</span>
+                      <div className="space-y-1.5">
+                        {todayMission.coreSubjects.map((sub: any, i: number) => (
+                          <div key={i} className="flex justify-between items-center text-[10px] font-bold">
+                            <span className="text-white">{sub.subject}</span>
+                            <span className="text-primary-accent">{sub.plannedEffort}% Intensity</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Communication focus */}
+                  {todayMission.communication?.options?.length > 0 && (
+                    <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider">Communication Focus</span>
+                        <span className="text-[10px] font-black text-primary-accent bg-primary-accent/5 border border-primary-accent/10 px-1.5 py-0.5 rounded">
+                          Level {todayMission.communication.confidenceRating}/5
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {todayMission.communication.options.map((opt: string, i: number) => (
+                          <span key={i} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-secondary-surface text-muted-text">
+                            {opt}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Aptitude focus */}
+                  {todayMission.aptitude?.plannedQuestions > 0 && (
+                    <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-1">
+                      <div className="flex justify-between items-center text-xs font-bold text-white">
+                        <span>Aptitude: {todayMission.aptitude.topicName}</span>
+                        <span className="text-primary-accent font-extrabold">{todayMission.aptitude.plannedQuestions} Qs</span>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+              </Card>
+            )}
             
             {/* DAILY MISSION CONTAINER (OATH SYSTEM) */}
             <Card glowEffect={profile.dailyOathCompleted} className="p-6 relative overflow-hidden transition-all duration-500">
