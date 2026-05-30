@@ -136,7 +136,7 @@ export default function LandingPage() {
             {/* Paragraph explanation */}
             <motion.p 
               variants={itemVariants}
-              className="text-sm sm:text-base md:text-lg text-muted-text max-w-2xl leading-relaxed mb-10"
+              className="text-base sm:text-lg md:text-xl text-muted-text max-w-2xl leading-relaxed mb-10"
             >
               An uncompromising, strictly private placement accountability system for computer engineers. 
               Track your daily consistency. Build ironclad coding discipline. Become placement ready on your own terms.
@@ -180,13 +180,13 @@ export default function LandingPage() {
             
             {/* Header info */}
             <div className="text-center max-w-3xl mx-auto mb-16">
-              <h2 className="text-xs uppercase font-bold tracking-widest text-primary-accent font-heading">
+              <h2 className="text-sm uppercase font-bold tracking-widest text-primary-accent font-heading">
                 6 Disciplines of Placement Prep
               </h2>
-              <p className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight mt-2 font-heading">
+              <p className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mt-2 font-heading">
                 Every focus area required to land a premium engineering offer.
               </p>
-              <p className="text-sm text-muted-text mt-3 max-w-2xl mx-auto">
+              <p className="text-base text-muted-text mt-3 max-w-2xl mx-auto">
                 A single page overview. Check off daily commitments across each core placement pillar to construct an elite resume.
               </p>
             </div>
@@ -206,14 +206,14 @@ export default function LandingPage() {
                       {item.icon}
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase font-bold tracking-wider text-muted-text">
+                      <span className="text-xs uppercase font-bold tracking-wider text-muted-text">
                         {item.subtitle}
                       </span>
-                      <CardTitle className="text-base mt-0.5">{item.title}</CardTitle>
+                      <CardTitle className="text-lg mt-0.5">{item.title}</CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-xs leading-relaxed text-muted-text">
+                    <p className="text-sm leading-relaxed text-muted-text">
                       {item.description}
                     </p>
                   </CardContent>
@@ -230,32 +230,32 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               
               <div className="lg:col-span-6 flex flex-col gap-4">
-                <span className="text-xs font-bold tracking-widest text-primary-accent uppercase font-heading">
+                <span className="text-sm font-bold tracking-widest text-primary-accent uppercase font-heading">
                   Product Philosophy
                 </span>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight font-heading">
                   No leaderboards. No comparing social pressure. Only consistency.
                 </h2>
-                <p className="text-sm text-muted-text leading-relaxed mt-2">
+                <p className="text-base text-muted-text leading-relaxed mt-2">
                   DDSCC was architected out of frustration with toxic, gamified platform systems that induce comparison anxiety. 
                   Placement preparation is a highly personalized marathon. Comparing yourself to others leads to burnout or false security.
                 </p>
                 <div className="mt-4 flex flex-col gap-3">
                   <div className="flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-primary-accent mt-0.5 shrink-0" />
-                    <span className="text-xs font-semibold text-primary-text">
+                    <span className="text-sm font-semibold text-primary-text">
                       Strict Accountability: You commit to an oath daily and record showing up.
                     </span>
                   </div>
                   <div className="flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-primary-accent mt-0.5 shrink-0" />
-                    <span className="text-xs font-semibold text-primary-text">
+                    <span className="text-sm font-semibold text-primary-text">
                       Quiet Progress: Self-growth is silent. No sharing progress widgets, no community likes.
                     </span>
                   </div>
                   <div className="flex items-start gap-2.5">
                     <CheckCircle2 className="w-4 h-4 text-primary-accent mt-0.5 shrink-0" />
-                    <span className="text-xs font-semibold text-primary-text">
+                    <span className="text-sm font-semibold text-primary-text">
                       Discipline Focus: Scoring is based on personal consistent days, not speed tests.
                     </span>
                   </div>
@@ -267,7 +267,7 @@ export default function LandingPage() {
                 <Card className="bg-[#0D0D0D] border-border-subtle relative overflow-hidden glow-emerald-sm">
                   <div className="absolute top-0 left-0 right-0 h-[2px] bg-primary-accent/30" />
                   <CardHeader>
-                    <CardTitle className="text-sm uppercase tracking-widest text-muted-text">
+                    <CardTitle className="text-base uppercase tracking-widest text-muted-text">
                       DDSCC Manifesto vs standard Platforms
                     </CardTitle>
                   </CardHeader>
@@ -275,8 +275,8 @@ export default function LandingPage() {
                     {/* Standard platform row */}
                     <div className="p-4 rounded-lg bg-background/40 border border-border-subtle/50 flex items-center justify-between gap-4">
                       <div className="flex flex-col">
-                        <span className="text-xs font-extrabold text-red-400 font-heading">Social Platforms</span>
-                        <span className="text-[11px] text-muted-text mt-0.5">Competitive public ranking leaderboard</span>
+                        <span className="text-sm font-extrabold text-red-400 font-heading">Social Platforms</span>
+                        <span className="text-xs text-muted-text mt-0.5">Competitive public ranking leaderboard</span>
                       </div>
                       <XCircle className="w-5 h-5 text-red-500/70 shrink-0" />
                     </div>
@@ -284,13 +284,13 @@ export default function LandingPage() {
                     {/* DDSCC row */}
                     <div className="p-4 rounded-lg bg-primary-accent/5 border border-primary-accent/15 flex items-center justify-between gap-4">
                       <div className="flex flex-col">
-                        <span className="text-xs font-extrabold text-primary-accent font-heading">DDSCC Environment</span>
-                        <span className="text-[11px] text-muted-text mt-0.5">Private discipline tracking, self-comparison</span>
+                        <span className="text-sm font-extrabold text-primary-accent font-heading">DDSCC Environment</span>
+                        <span className="text-xs text-muted-text mt-0.5">Private discipline tracking, self-comparison</span>
                       </div>
                       <CheckCircle2 className="w-5 h-5 text-primary-accent shrink-0" />
                     </div>
 
-                    <p className="text-[10px] text-muted-text/80 text-center italic mt-2">
+                    <p className="text-xs text-muted-text/80 text-center italic mt-2">
                       &ldquo;We perform best when we compete only with our yesterday&apos;s metrics.&rdquo;
                     </p>
                   </CardContent>
@@ -313,7 +313,7 @@ export default function LandingPage() {
               A Secure, Private Preparation Chamber
             </h2>
             
-            <p className="text-sm text-muted-text max-w-2xl mt-4 leading-relaxed">
+            <p className="text-base text-muted-text max-w-2xl mt-4 leading-relaxed">
               We operate under absolute confidentiality. Your tracking statistics, daily tasks, study metrics, and 
               discipline records are accessible strictly by you. We do not sell your academic logs, nor do we host them 
               on open public channels. Your growth chamber remains quiet and secure.
@@ -321,20 +321,20 @@ export default function LandingPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-12 w-full max-w-3xl">
               <div className="p-5 rounded-xl bg-card-surface border border-border-subtle/60 text-left">
-                <span className="text-xs font-bold text-white block font-heading">No Public Profiles</span>
-                <span className="text-[11px] text-muted-text mt-1.5 block leading-relaxed">
+                <span className="text-sm font-bold text-white block font-heading">No Public Profiles</span>
+                <span className="text-xs text-muted-text mt-1.5 block leading-relaxed">
                   Your dashboard cannot be crawled by recruiters or peers. It is an internal workspace designed purely for personal preparation.
                 </span>
               </div>
               <div className="p-5 rounded-xl bg-card-surface border border-border-subtle/60 text-left">
-                <span className="text-xs font-bold text-white block font-heading">Encrypted Stats</span>
-                <span className="text-[11px] text-muted-text mt-1.5 block leading-relaxed">
+                <span className="text-sm font-bold text-white block font-heading">Encrypted Stats</span>
+                <span className="text-xs text-muted-text mt-1.5 block leading-relaxed">
                   Every checklist commit, streak update, and section breakdown is processed under high security constraints.
                 </span>
               </div>
               <div className="p-5 rounded-xl bg-card-surface border border-border-subtle/60 text-left">
-                <span className="text-xs font-bold text-white block font-heading">Zero Tracker Ads</span>
-                <span className="text-[11px] text-muted-text mt-1.5 block leading-relaxed">
+                <span className="text-sm font-bold text-white block font-heading">Zero Tracker Ads</span>
+                <span className="text-xs text-muted-text mt-1.5 block leading-relaxed">
                   No promotional trackers, pixel trackers, or ad cookies. DDSCC is a focused, premium workspace designed for academic study.
                 </span>
               </div>
@@ -352,7 +352,7 @@ export default function LandingPage() {
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-white font-heading">
               Start showing up for your future.
             </h2>
-            <p className="text-sm text-muted-text max-w-xl mx-auto mt-4 leading-relaxed">
+            <p className="text-base text-muted-text max-w-xl mx-auto mt-4 leading-relaxed">
               Unlock the DDSCC private operating system. Commit to daily accountability and take total control over your placement destiny.
             </p>
             <div className="mt-10">

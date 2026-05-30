@@ -60,6 +60,10 @@ export default function DashboardPage() {
 
         const data = await response.json();
         if (data.success && data.user) {
+          if (data.user.isFirstLogin) {
+            router.push('/onboarding');
+            return;
+          }
           setProfile({
             name: data.user.username,
             role: data.user.targetRole || 'Aspiring Computer Engineer',
@@ -198,13 +202,16 @@ export default function DashboardPage() {
               </h1>
               <Sparkles className="w-5 h-5 text-primary-accent animate-pulse" />
             </div>
-            <p className="text-xs italic text-muted-text mt-1 max-w-2xl">
+            <p className="text-sm font-bold text-primary-accent mt-0.5 tracking-wide">
+              Future {profile.role} 🚀
+            </p>
+            <p className="text-xs italic text-muted-text mt-1.5 max-w-2xl">
               {getMotivationalQuote()}
             </p>
           </div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] uppercase font-bold tracking-wider text-muted-text bg-secondary-surface px-3 py-1.5 rounded-lg border border-border-subtle/50">
-              Role: {profile.role}
+              Path: {profile.role}
             </span>
           </div>
         </section>
@@ -220,13 +227,13 @@ export default function DashboardPage() {
               {/* TODAY'S SCORE CIRCULAR RING CARD */}
               <Card glowEffect className="flex items-center justify-between p-6">
                 <div className="flex flex-col">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-muted-text">
+                  <span className="text-xs uppercase font-extrabold tracking-widest text-muted-text">
                     Overall Prep Score
                   </span>
                   <span className="text-2xl font-black text-white mt-1 font-heading">
                     Placement Capacity
                   </span>
-                  <p className="text-xs text-muted-text mt-1.5 max-w-[180px] leading-relaxed">
+                  <p className="text-sm text-muted-text mt-1.5 max-w-[180px] leading-relaxed">
                     Recalculates instantly as focus metrics are checked.
                   </p>
                 </div>
@@ -237,7 +244,7 @@ export default function DashboardPage() {
               <Card className="flex flex-col justify-between p-6">
                 <div className="flex justify-between items-start">
                   <div className="flex flex-col">
-                    <span className="text-[10px] uppercase font-extrabold tracking-widest text-muted-text">
+                    <span className="text-xs uppercase font-extrabold tracking-widest text-muted-text">
                       Discipline Streak
                     </span>
                     <span className="text-2xl font-black text-white mt-1 font-heading">
@@ -253,12 +260,12 @@ export default function DashboardPage() {
                   <span className="text-4xl font-black text-white font-heading">
                     🔥 {profile.streakDays}
                   </span>
-                  <span className="text-xs font-semibold text-muted-text">
+                  <span className="text-sm font-semibold text-muted-text">
                     Consecutive Days
                   </span>
                 </div>
 
-                <div className="mt-3 text-[10px] text-muted-text/80 leading-relaxed border-t border-border-subtle/40 pt-3 flex items-center gap-1.5">
+                <div className="mt-3 text-xs text-muted-text/80 leading-relaxed border-t border-border-subtle/40 pt-3 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
                   <span>Maintain the daily oath to protect this streak from decaying.</span>
                 </div>
@@ -269,10 +276,10 @@ export default function DashboardPage() {
             {/* QUICK SECTIONS GRID (DSA, DEV, ETC WITH INTERACTIVE ADJUSTMENTS) */}
             <section>
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xs font-extrabold tracking-widest uppercase text-muted-text font-heading">
+                <h2 className="text-sm font-extrabold tracking-widest uppercase text-muted-text font-heading">
                   Pillar Capacities (Manual Micro-Adjust)
                 </h2>
-                <span className="text-[10px] text-primary-accent italic font-semibold">
+                <span className="text-xs text-primary-accent italic font-semibold">
                   Tweak to simulate progress
                 </span>
               </div>
@@ -283,9 +290,9 @@ export default function DashboardPage() {
                   return (
                     <Card key={key} className="bg-card-surface border-border-subtle p-4 flex flex-col justify-between h-36">
                       <div className="flex justify-between items-start">
-                        <div className="flex items-center gap-2 text-primary-accent bg-primary-accent/5 border border-primary-accent/15 px-2 py-1 rounded-lg">
+                        <div className="flex items-center gap-2 text-primary-accent bg-primary-accent/5 border border-primary-accent/15 px-2.5 py-1 rounded-lg">
                           {renderDisciplineIcon(key)}
-                          <span className="text-[10px] font-black uppercase tracking-wider font-heading">
+                          <span className="text-xs font-black uppercase tracking-wider font-heading">
                             {key.substring(0, 3).toUpperCase()}
                           </span>
                         </div>
@@ -297,7 +304,7 @@ export default function DashboardPage() {
                       {/* Title & Micro-Adjust Buttons */}
                       <div className="mt-2 flex items-center justify-between">
                         <div>
-                          <h3 className="text-xs font-extrabold text-primary-text leading-tight">
+                          <h3 className="text-sm font-extrabold text-primary-text leading-tight">
                             {getDisciplineName(key)}
                           </h3>
                         </div>
@@ -339,11 +346,11 @@ export default function DashboardPage() {
               <div className="flex justify-between items-center">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-4 h-4 text-primary-accent" />
-                  <h2 className="text-xs font-extrabold tracking-widest uppercase text-muted-text font-heading">
+                  <h2 className="text-sm font-extrabold tracking-widest uppercase text-muted-text font-heading">
                     Placement Readiness Trend (Recharts Target)
                   </h2>
                 </div>
-                <span className="text-[10px] text-muted-text font-semibold">
+                <span className="text-xs text-muted-text font-semibold">
                   Last 7 preparation Cycles
                 </span>
               </div>
@@ -391,7 +398,7 @@ export default function DashboardPage() {
                   </svg>
 
                   {/* X Axis mock dates labels */}
-                  <div className="w-full flex justify-between text-[9px] uppercase font-bold text-muted-text/80 z-20 pt-2 border-t border-border-subtle/30 px-1 relative top-[168px]">
+                  <div className="w-full flex justify-between text-xs uppercase font-bold text-muted-text/80 z-20 pt-2 border-t border-border-subtle/30 px-1 relative top-[168px]">
                     <span>May 24 (45%)</span>
                     <span>May 26 (62%)</span>
                     <span>May 28 (68%)</span>
@@ -401,7 +408,7 @@ export default function DashboardPage() {
                 </div>
                 
                 {/* Legend indicator */}
-                <div className="mt-8 flex justify-between items-center text-[10px] text-muted-text border-t border-border-subtle/30 pt-3">
+                <div className="mt-8 flex justify-between items-center text-xs text-muted-text border-t border-border-subtle/30 pt-3">
                   <span>Compound consistency threshold: 60% standard capacity</span>
                   <span className="flex items-center gap-1">
                     <span className="w-2 h-2 rounded-full bg-primary-accent inline-block" />
@@ -415,19 +422,32 @@ export default function DashboardPage() {
 
           {/* RIGHT SECTION (OATH CARD, TASKS CHECKLIST, HISTORY GRID) */}
           <div className="lg:col-span-4 space-y-8">
+
+            {/* WHY YOU STARTED / PERSONAL ANCHOR */}
+            <Card className="p-6 bg-card-surface border-border-subtle/80">
+              <span className="text-xs uppercase font-extrabold tracking-widest text-primary-accent font-heading">
+                Your Anchor
+              </span>
+              <h4 className="text-base font-black text-white uppercase tracking-wider font-heading mt-1">
+                Why You Started
+              </h4>
+              <p className="text-sm italic text-muted-text/90 leading-relaxed bg-[#050505] p-3 rounded-lg border border-border-subtle/50 mt-3 select-none">
+                &ldquo;{profile.oathText}&rdquo;
+              </p>
+            </Card>
             
             {/* DAILY MISSION CONTAINER (OATH SYSTEM) */}
             <Card glowEffect={profile.dailyOathCompleted} className="p-6 relative overflow-hidden transition-all duration-500">
               <CardHeader className="p-0 mb-4 flex flex-row justify-between items-start gap-4">
                 <div className="flex flex-col">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-muted-text">
+                  <span className="text-xs uppercase font-extrabold tracking-widest text-muted-text">
                     Daily Discipline Seal
                   </span>
-                  <CardTitle className="text-base font-bold text-white font-heading mt-0.5">
+                  <CardTitle className="text-lg font-bold text-white font-heading mt-0.5">
                     Today&apos;s Commitment
                   </CardTitle>
                 </div>
-                <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${
+                <span className={`text-xs font-black uppercase tracking-wider px-2 py-0.5 rounded ${
                   profile.dailyOathCompleted ? 'bg-primary-accent/15 text-primary-accent border border-primary-accent/20' : 'bg-secondary-surface text-muted-text border border-border-subtle/60'
                 }`}>
                   {profile.dailyOathCompleted ? 'Committed' : 'Pending'}
@@ -435,8 +455,8 @@ export default function DashboardPage() {
               </CardHeader>
               
               <CardContent className="p-0">
-                <p className="text-xs italic text-muted-text leading-relaxed bg-[#050505] p-3 rounded-lg border border-border-subtle/50 mb-4 select-none">
-                  &ldquo;{profile.oathText}&rdquo;
+                <p className="text-sm italic text-muted-text leading-relaxed bg-[#050505] p-3 rounded-lg border border-border-subtle/50 mb-4 select-none">
+                  &ldquo;I commit to showing up for my future. Consistency beats motivation. I will build discipline, one day at a time.&rdquo;
                 </p>
 
                 {/* Big Seal Oath Button */}

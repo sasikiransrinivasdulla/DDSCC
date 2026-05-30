@@ -14,6 +14,29 @@ DDSCC is a **premium placement discipline operating system** designed to build i
 
 ---
 
+## 🔒 First-Time Onboarding & Oath System
+
+When a user logs in for the very first time, instead of directly entering the dashboard, they are guided through a calm, high-end, and deeply personal **Onboarding Oath wizard** (`/onboarding`):
+
+- **Welcome Mindset Seeding**: Establishes the DDSCC self-growth standard and filters out distracting noise.
+- **Your Why (Motivation Logs)**: Prompts the user to define their personal anchor (why they are here). This is stored strictly privately as `motivationText` in MongoDB.
+- **Target Role Mapping**: Selectable glassmorphic grids detailing engineering paths (Software Engineer, AI Engineer, Agentic AI Engineer, DevOps, etc.) with custom path text fields, mapped as `targetRole` in MongoDB.
+- **Commitment Seal**: Enforces a required signature on their personal oath, initializing their custom discipline chamber.
+- **Dashboard Personalization**:
+  - Main welcome header dynamically renders `"Future [TargetRole] 🚀"` beneath their greeting.
+  - Sidebar dynamically renders a premium **"Your Anchor"** box displaying their exact, non-placeholder onboarding motivation quote.
+
+---
+
+## 🎨 Premium UI & Readability Refinements
+
+DDSCC operates under a high-contrast, elite digital design system blending custom **matte black backdrops** (`#050505`) with **vibrant emerald styling** (`#10B981`):
+- **Contrast Optimization**: Balanced the global muted text variable from `#8A8A8A` to a lighter `#9E9E9E`, optimizing dark-mode contrast ratios and ensuring zero screen fatigue during high-intensity revision sessions.
+- **Typography Scale Scale-Up**: Scaled up font-size ratios throughout onboarding questions, hero captions, dashboard stats cards, section labels, action button items, and input textboxes.
+- **Confident Layout Proportions**: Enforced comfortable padding and spacing boundaries, offering a highly readable, responsive, and bold academic experience.
+
+---
+
 ## 🛠️ The Tech Stack
 
 - **Framework**: [Next.js](https://nextjs.org/) App Router (leveraging Turbopack, edge routing middleware, and dynamic API endpoints).

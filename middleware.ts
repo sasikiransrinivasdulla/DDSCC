@@ -6,9 +6,10 @@ export function middleware(request: NextRequest) {
   const hasSession = cookies.has('ddscc_session');
 
   const isDashboard = nextUrl.pathname.startsWith('/dashboard');
+  const isOnboarding = nextUrl.pathname.startsWith('/onboarding');
   const isAuth = nextUrl.pathname.startsWith('/auth');
 
-  if (isDashboard && !hasSession) {
+  if ((isDashboard || isOnboarding) && !hasSession) {
     // Redirect unauthenticated user to the auth page
     const loginUrl = new URL('/auth', request.url);
     return NextResponse.redirect(loginUrl);
@@ -24,5 +25,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth'],
+  matcher: ['/dashboard/:path*', '/auth', '/onboarding'],
 };

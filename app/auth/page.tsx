@@ -58,7 +58,11 @@ function AuthContent() {
 
       // Small delay for smooth toast reading before redirect
       setTimeout(() => {
-        router.push('/dashboard');
+        if (data.user?.isFirstLogin) {
+          router.push('/onboarding');
+        } else {
+          router.push('/dashboard');
+        }
       }, 800);
     } catch (error) {
       console.error('Auth error:', error);
@@ -153,7 +157,7 @@ function AuthContent() {
 
                 {/* Username Input */}
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-text mb-1.5 font-heading">
+                  <label className="block text-xs font-bold uppercase tracking-wider text-muted-text mb-1.5 font-heading">
                     Username
                   </label>
                   <input
@@ -162,14 +166,14 @@ function AuthContent() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="e.g. sasi"
-                    className="w-full px-4 py-2.5 rounded-lg bg-secondary-surface border border-border-subtle/80 text-sm text-primary-text placeholder:text-muted-text/45 focus:outline-none focus:border-primary-accent/50 transition-colors"
+                    className="w-full px-4 py-2.5 rounded-lg bg-secondary-surface border border-border-subtle/80 text-base text-primary-text placeholder:text-muted-text/45 focus:outline-none focus:border-primary-accent/50 transition-colors"
                   />
                 </div>
 
                 {/* Password input */}
                 <div>
                   <div className="flex justify-between items-center mb-1.5">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-text font-heading">
+                    <label className="block text-xs font-bold uppercase tracking-wider text-muted-text font-heading">
                       Access Password
                     </label>
                   </div>
@@ -179,7 +183,7 @@ function AuthContent() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••••••"
-                    className="w-full px-4 py-2.5 rounded-lg bg-secondary-surface border border-border-subtle/80 text-sm text-primary-text placeholder:text-muted-text/45 focus:outline-none focus:border-primary-accent/50 transition-colors"
+                    className="w-full px-4 py-2.5 rounded-lg bg-secondary-surface border border-border-subtle/80 text-base text-primary-text placeholder:text-muted-text/45 focus:outline-none focus:border-primary-accent/50 transition-colors"
                   />
                 </div>
 
@@ -195,7 +199,7 @@ function AuthContent() {
                   {activeTab === 'login' ? 'Access System' : 'Create Preparation Chamber'}
                 </Button>
                 
-                <div className="flex items-center gap-1.5 text-[10px] text-muted-text">
+                <div className="flex items-center gap-1.5 text-xs text-muted-text">
                   <Sparkles className="w-3 h-3 text-primary-accent" />
                   <span>Encrypted progress. Strictly confidential.</span>
                 </div>
@@ -220,7 +224,7 @@ export default function AuthPage() {
         <div className="text-primary-accent font-black text-3xl tracking-widest font-heading animate-pulse relative z-10">
           DDSCC
         </div>
-        <div className="text-[10px] text-muted-text uppercase font-bold tracking-widest mt-3 animate-pulse relative z-10">
+        <div className="text-xs text-muted-text uppercase font-bold tracking-widest mt-3 animate-pulse relative z-10">
           Initializing Chamber...
         </div>
       </div>
