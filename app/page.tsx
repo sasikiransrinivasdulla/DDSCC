@@ -166,8 +166,8 @@ export default function LandingPage() {
               className="mt-16 max-w-lg border-l border-primary-accent/30 pl-4 py-1 text-left"
             >
               <p className="text-xs italic text-muted-text">
-                "DDSCC is not a social media feed or a todo list. It is an operating system of consistency. 
-                You show up, commit to your daily routines, and measure only one competitor: who you were yesterday."
+                &ldquo;DDSCC is not a social media feed or a todo list. It is an operating system of consistency. 
+                You show up, commit to your daily routines, and measure only one competitor: who you were yesterday.&rdquo;
               </p>
             </motion.div>
 
@@ -291,7 +291,7 @@ export default function LandingPage() {
                     </div>
 
                     <p className="text-[10px] text-muted-text/80 text-center italic mt-2">
-                      “We perform best when we compete only with our yesterday's metrics.”
+                      &ldquo;We perform best when we compete only with our yesterday&apos;s metrics.&rdquo;
                     </p>
                   </CardContent>
                 </Card>

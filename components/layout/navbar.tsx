@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useProgressStore } from '@/store/useProgressStore';
 import { Button } from '@/components/ui/button';
 import { Flame, ShieldAlert, BookOpen, Compass, Award } from 'lucide-react';
@@ -10,9 +10,24 @@ import { motion } from 'framer-motion';
 
 export const Navbar = () => {
   const pathname = usePathname();
+  const router = useRouter();
   const { profile } = useProgressStore();
   const isDashboard = pathname.startsWith('/dashboard');
   const isAuth = pathname.startsWith('/auth');
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
+      if (response.ok) {
+        router.push('/');
+        router.refresh();
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border-subtle bg-background/65 backdrop-blur-md transition-all duration-300">
@@ -90,11 +105,14 @@ export const Navbar = () => {
                 </span>
               </div>
 
-              <Link href="/auth">
-                <Button variant="outline" size="sm" className="hidden sm:inline-flex text-xs">
-                  Exit System
-                </Button>
-              </Link>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="hidden sm:inline-flex text-xs cursor-pointer"
+                onClick={handleLogout}
+              >
+                Exit System
+              </Button>
             </div>
           ) : isAuth ? (
             <Link href="/">

@@ -1,37 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DDSCC — Strengthening Your Placement Journey
+> **DSA + Development + Skills + Core + Communication (+ Aptitude)**
+> *A premium, strictly personal placement accountability system for computer science engineers.*
 
-## Getting Started
+DDSCC is a **premium placement discipline operating system** designed to build ironclad consistency, focus, and readiness. Based on the philosophy of **"No comparison. No leaderboards. Only self-growth,"** this platform provides computer science graduates and aspiring software engineers a private environment to prepare for placements without the anxiety of public ranking comparisons.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 💎 Product Philosophy
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Strictly Personal**: No comparison rings. No public competitive pressure. Your prep progress metrics are kept private and confidential.
+2. **Ironclad Discipline**: Compounding streaks are established daily. A decay-protected daily oath keeps you consistent day in, day out.
+3. **Pillar Capacities**: Track readiness metrics in real-time across six core dimensions of engineering excellence.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ The Tech Stack
 
-## Learn More
+- **Framework**: [Next.js](https://nextjs.org/) App Router (leveraging Turbopack, edge routing middleware, and dynamic API endpoints).
+- **Styling**: Vanilla HSL custom CSS system combined with custom dynamic micro-animations (powered by Framer Motion).
+- **Database**: [MongoDB](https://www.mongodb.com/) via Mongoose connection pooling for high-performance serverless environments.
+- **State Management**: [Zustand](https://zustand-demo.pmnd.rs/) for frictionless frontend checklist and tracking updates.
+- **UI Components**: Radix UI primitives and Lucide icons.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔒 Security & Session Architecture
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+DDSCC employs a premium, security-conscious authentication system:
 
-## Deploy on Vercel
+- **Bcrypt Password Hashing**: Passwords are never stored raw, using standard `bcryptjs` salt cycles on the database layer.
+- **Frictionless Auth Rules**: Supports fully minimal usernames and passwords (with zero arbitrary length or complexity restrictions) for rapid onboarding.
+- **Persistent HTTP Handshake**: Decrypts and processes secure JWT signatures with a **7-day automatic persistence** window.
+- **Edge Route Protection**: Next.js Edge Middleware inspects sessions at the routing layer, avoiding screen flashes and redirecting unauthenticated traffic instantly.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-The SKS Product
+## 🧑‍💻 Get Started Locally
+
+1. **Clone the Repository**:
+   ```bash
+   git clone <repository_url>
+   cd DDSCC
+   ```
+
+2. **Configure Environment Variables**:
+   Create a `.env` file in the root directory (already configured in production) containing:
+   ```env
+   MONGO_URI=your_mongodb_connection_string
+   JWT_SECRET=your_secure_jwt_secret
+   ```
+
+3. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+4. **Boot Development Chamber**:
+   ```bash
+   npm run dev
+   ```
+
+5. **Build and Lint Check**:
+   ```bash
+   npm run build
+   npm run lint
+   ```
+
+---
+
+## 🤝 Connect with the Developer
+
+Built with focus and dedication by **Sasi Kiran Srinivas**. Let's connect and build the next frontier of high-performance SaaS environments together!
+
+🔗 **GitHub Connect**: [sasikiransrinivasdulla](https://github.com/sasikiransrinivasdulla)

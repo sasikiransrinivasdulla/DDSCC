@@ -21,32 +21,50 @@ function AuthContent() {
   const [isLoading, setIsLoading] = React.useState(false);
 
   // Form states
-  const [email, setEmail] = React.useState('');
+  const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
-  const [name, setName] = React.useState('');
-  const [targetRole, setTargetRole] = React.useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    // Simulate standard premium api handshake latency
-    setTimeout(() => {
-      setIsLoading(false);
-      
+    try {
+      const endpoint = activeTab === 'login' ? '/api/auth/login' : '/api/auth/signup';
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        toast.error(data.error || 'Authentication failed. Please try again.');
+        setIsLoading(false);
+        return;
+      }
+
       if (activeTab === 'login') {
-        toast.success('Authentication successful.', {
-          description: "Entering DDSCC placement accountability dashboard. Welcome back, Sasi.",
+        toast.success('Access Granted', {
+          description: `Entering placement accountability dashboard. Welcome back, ${data.user?.username || username}.`,
         });
       } else {
-        toast.success('Discipline chamber established successfully.', {
-          description: "Your quiet progression logs have been initialized. Welcome, Sasi.",
+        toast.success('Preparation Chamber Established', {
+          description: `Your quiet progression logs have been initialized. Welcome, ${username}.`,
         });
       }
-      
-      // Redirect to the placement dashboard
-      router.push('/dashboard');
-    }, 1200);
+
+      // Small delay for smooth toast reading before redirect
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 800);
+    } catch (error) {
+      console.error('Auth error:', error);
+      toast.error('Network error. Failed to establish connection.');
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -87,7 +105,11 @@ function AuthContent() {
                 {/* Login Tab Button */}
                 <button
                   type="button"
-                  onClick={() => setActiveTab('login')}
+                  onClick={() => {
+                    setActiveTab('login');
+                    setUsername('');
+                    setPassword('');
+                  }}
                   className={`py-2 text-xs font-bold font-heading rounded-md transition-all relative z-10 flex items-center justify-center gap-1.5 cursor-pointer ${
                     activeTab === 'login' ? 'text-white' : 'text-muted-text'
                   }`}
@@ -99,7 +121,11 @@ function AuthContent() {
                 {/* Signup Tab Button */}
                 <button
                   type="button"
-                  onClick={() => setActiveTab('signup')}
+                  onClick={() => {
+                    setActiveTab('signup');
+                    setUsername('');
+                    setPassword('');
+                  }}
                   className={`py-2 text-xs font-bold font-heading rounded-md transition-all relative z-10 flex items-center justify-center gap-1.5 cursor-pointer ${
                     activeTab === 'signup' ? 'text-white' : 'text-muted-text'
                   }`}
@@ -124,60 +150,18 @@ function AuthContent() {
             {/* FORM BODY */}
             <form onSubmit={handleSubmit}>
               <CardContent className="pt-4 space-y-4">
-                
-                <AnimatePresence mode="wait">
-                  {activeTab === 'signup' ? (
-                    <motion.div
-                      key="signup-fields"
-                      initial={{ opacity: 0, x: 10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -10 }}
-                      transition={{ duration: 0.2 }}
-                      className="space-y-4"
-                    >
-                      {/* Name input */}
-                      <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-text mb-1.5 font-heading">
-                          Full Name
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={name}
-                          onChange={(e) => setName(e.target.value)}
-                          placeholder="e.g. Sasi Kiran"
-                          className="w-full px-4 py-2.5 rounded-lg bg-secondary-surface border border-border-subtle/80 text-sm text-primary-text placeholder:text-muted-text/45 focus:outline-none focus:border-primary-accent/50 transition-colors"
-                        />
-                      </div>
 
-                      {/* Target role input */}
-                      <div>
-                        <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-text mb-1.5 font-heading">
-                          Target Role / Company
-                        </label>
-                        <input
-                          type="text"
-                          value={targetRole}
-                          onChange={(e) => setTargetRole(e.target.value)}
-                          placeholder="e.g. Google Software Engineer"
-                          className="w-full px-4 py-2.5 rounded-lg bg-secondary-surface border border-border-subtle/80 text-sm text-primary-text placeholder:text-muted-text/45 focus:outline-none focus:border-primary-accent/50 transition-colors"
-                        />
-                      </div>
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
-
-                {/* Email input */}
+                {/* Username Input */}
                 <div>
                   <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-text mb-1.5 font-heading">
-                    Email Address
+                    Username
                   </label>
                   <input
-                    type="email"
+                    type="text"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="sasi@example.com"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="e.g. sasi"
                     className="w-full px-4 py-2.5 rounded-lg bg-secondary-surface border border-border-subtle/80 text-sm text-primary-text placeholder:text-muted-text/45 focus:outline-none focus:border-primary-accent/50 transition-colors"
                   />
                 </div>
@@ -188,11 +172,6 @@ function AuthContent() {
                     <label className="block text-[10px] font-bold uppercase tracking-wider text-muted-text font-heading">
                       Access Password
                     </label>
-                    {activeTab === 'login' && (
-                      <span className="text-[10px] text-primary-accent hover:underline cursor-pointer">
-                        Forgot?
-                      </span>
-                    )}
                   </div>
                   <input
                     type="password"

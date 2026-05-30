@@ -26,9 +26,13 @@ import {
   MessageSquare,
   ChevronRight
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { DisciplineKey } from '@/types';
 
 export default function DashboardPage() {
+  const router = useRouter();
+  const [isPageLoading, setIsPageLoading] = React.useState(true);
+  
   const { 
     profile, 
     scores, 
@@ -38,11 +42,40 @@ export default function DashboardPage() {
     addTask, 
     toggleTask, 
     deleteTask, 
-    toggleDailyOath 
+    toggleDailyOath,
+    setProfile
   } = useProgressStore();
 
   const [newTaskText, setNewTaskText] = React.useState('');
   const [selectedDiscipline, setSelectedDiscipline] = React.useState<DisciplineKey>('dsa');
+
+  React.useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        if (!response.ok) {
+          router.push('/auth');
+          return;
+        }
+
+        const data = await response.json();
+        if (data.success && data.user) {
+          setProfile({
+            name: data.user.username,
+            role: data.user.targetRole || 'Aspiring Computer Engineer',
+            oathText: data.user.motivationText || 'I will dedicate focused, deliberate effort toward my placement goals today. No excuses, no shortcuts, just relentless self-growth.',
+          });
+        }
+      } catch (error) {
+        console.error('Session hydration failed:', error);
+      } finally {
+        setIsPageLoading(false);
+      }
+    };
+
+    checkSession();
+  }, [router, setProfile]);
+
 
   // Dynamically calculate the overall average placement readiness score
   const overallScore = Math.round(
@@ -133,6 +166,22 @@ export default function DashboardPage() {
     }
     return squares;
   };
+
+  if (isPageLoading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-background items-center justify-center relative">
+        {/* Soft background glow */}
+        <div className="absolute w-[200px] h-[200px] rounded-full bg-primary-accent/10 blur-[80px] pointer-events-none" />
+        
+        <div className="text-primary-accent font-black text-3xl tracking-widest font-heading animate-pulse relative z-10">
+          DDSCC
+        </div>
+        <div className="text-[10px] text-muted-text uppercase font-bold tracking-widest mt-3 animate-pulse relative z-10">
+          Hydrating chamber...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-background relative">
@@ -375,7 +424,7 @@ export default function DashboardPage() {
                     Daily Discipline Seal
                   </span>
                   <CardTitle className="text-base font-bold text-white font-heading mt-0.5">
-                    Today's Commitment
+                    Today&apos;s Commitment
                   </CardTitle>
                 </div>
                 <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded ${
@@ -387,7 +436,7 @@ export default function DashboardPage() {
               
               <CardContent className="p-0">
                 <p className="text-xs italic text-muted-text leading-relaxed bg-[#050505] p-3 rounded-lg border border-border-subtle/50 mb-4 select-none">
-                  "{profile.oathText}"
+                  &ldquo;{profile.oathText}&rdquo;
                 </p>
 
                 {/* Big Seal Oath Button */}

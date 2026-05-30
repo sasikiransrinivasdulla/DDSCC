@@ -33,7 +33,7 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay }}
           className={baseClass}
-          {...(props as any)}
+          {...(props as React.ComponentPropsWithoutRef<typeof motion.div>)}
         >
           {topGlowBorder}
           {children}
