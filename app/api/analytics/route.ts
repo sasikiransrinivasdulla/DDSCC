@@ -277,6 +277,11 @@ export async function GET() {
     const activityTimeline: any[] = [];
     // Loop backwards to get newest days first
     for (let i = allMissions.length - 1; i >= 0; i--) {
+      // High-growth scale optimization: exit loops when timeline list capacity is satisfied
+      if (activityTimeline.length >= 12) {
+        break;
+      }
+
       const m = allMissions[i];
       const dateLabel = m.dateString;
       

@@ -107,11 +107,32 @@ export async function POST(request: Request) {
       );
     }
 
-    // Auto-calculate total planned problems
-    const easyCount = Number(dsaTargets?.easy || 0);
-    const mediumCount = Number(dsaTargets?.medium || 0);
-    const hardCount = Number(dsaTargets?.hard || 0);
+    // Auto-calculate total planned problems with robust defensive bounds checks
+    const easyCount = Math.max(0, Number(dsaTargets?.easy || 0));
+    const mediumCount = Math.max(0, Number(dsaTargets?.medium || 0));
+    const hardCount = Math.max(0, Number(dsaTargets?.hard || 0));
     const totalCount = easyCount + mediumCount + hardCount;
+
+    // Clamp development planned hours to a maximum of 24
+    const plannedHours = Math.min(24, Math.max(0, Number(development?.plannedHours || 0)));
+
+    // Clean and validate custom tags lists to prevent database pollution
+    const validatedSkills = (Array.isArray(skills) ? skills : [])
+      .map((s: any) => String(s || '').trim())
+      .filter(Boolean);
+
+    const validatedCoreSubjects = (Array.isArray(coreSubjects) ? coreSubjects : [])
+      .map((c: any) => ({
+        subject: String(c.subject || '').trim(),
+        plannedEffort: Math.min(100, Math.max(0, Number(c.plannedEffort || 50))),
+      }))
+      .filter((c) => c.subject !== '');
+
+    // Clamp rating to [1, 5] inclusive
+    const confidenceRating = Math.min(5, Math.max(1, Number(communication?.confidenceRating || 3)));
+    
+    // Validate planned aptitude questions
+    const plannedQuestions = Math.max(0, Number(aptitude?.plannedQuestions || 0));
 
     const newMission = new DailyMission({
       userId: decoded.userId,
@@ -124,21 +145,21 @@ export async function POST(request: Request) {
       },
       development: {
         isBuilding: !!development?.isBuilding,
-        projectName: development?.projectName || '',
-        projectDesc: development?.projectDesc || '',
-        plannedHours: Number(development?.plannedHours || 0),
+        projectName: String(development?.projectName || '').trim(),
+        projectDesc: String(development?.projectDesc || '').trim(),
+        plannedHours: plannedHours,
         willPushGithub: !!development?.willPushGithub,
         exploreNew: !!development?.exploreNew,
       },
-      skills: Array.isArray(skills) ? skills : [],
-      coreSubjects: Array.isArray(coreSubjects) ? coreSubjects : [],
+      skills: validatedSkills,
+      coreSubjects: validatedCoreSubjects,
       communication: {
-        options: Array.isArray(communication?.options) ? communication.options : [],
-        confidenceRating: Number(communication?.confidenceRating || 3),
+        options: Array.isArray(communication?.options) ? communication.options.map((o: any) => String(o || '').trim()) : [],
+        confidenceRating: confidenceRating,
       },
       aptitude: {
-        topicName: aptitude?.topicName || '',
-        plannedQuestions: Number(aptitude?.plannedQuestions || 0),
+        topicName: String(aptitude?.topicName || '').trim(),
+        plannedQuestions: plannedQuestions,
       },
     });
 

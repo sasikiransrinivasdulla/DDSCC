@@ -14,7 +14,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, children, variant = 'primary', size = 'md', isLoading, disabled, ...props }, ref) => {
     
     // Core styling classes mapping
-    const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-primary-accent/50 disabled:opacity-50 disabled:pointer-events-none cursor-pointer';
+    const baseStyles = 'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-primary-accent/60 disabled:opacity-50 disabled:pointer-events-none cursor-pointer';
     
     const variants = {
       primary: 'bg-primary-accent text-[#050505] font-semibold hover:bg-soft-accent hover:shadow-[0_0_25px_rgba(16,185,129,0.3)] shadow-[0_0_15px_rgba(16,185,129,0.15)] border border-transparent',

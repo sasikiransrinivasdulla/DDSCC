@@ -12,8 +12,10 @@ export const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { profile } = useProgressStore();
-  const isDashboard = pathname.startsWith('/dashboard');
   const isAuth = pathname.startsWith('/auth');
+
+  // Verify if they are logged in or viewing inside app views
+  const isAppView = (profile && profile.name) || pathname.startsWith('/dashboard') || pathname.startsWith('/profile') || pathname.startsWith('/history');
 
   const handleLogout = async () => {
     try {
@@ -46,19 +48,27 @@ export const Navbar = () => {
 
         {/* MIDDLE NAVIGATION LINKS */}
         <nav className="hidden md:flex items-center gap-8">
-          {isDashboard ? (
+          {isAppView ? (
             <>
               <Link 
                 href="/dashboard" 
-                className="text-sm font-semibold text-primary-text border-b border-primary-accent px-1 py-1"
+                className={`text-sm font-semibold px-1 py-1 transition-colors border-b-2 ${
+                  pathname.startsWith('/dashboard') 
+                    ? 'text-primary-text border-primary-accent' 
+                    : 'text-muted-text hover:text-primary-text border-transparent'
+                }`}
               >
                 Dashboard
               </Link>
               <Link 
-                href="/" 
-                className="text-sm font-semibold text-muted-text hover:text-primary-text transition-colors px-1 py-1"
+                href="/profile" 
+                className={`text-sm font-semibold px-1 py-1 transition-colors border-b-2 ${
+                  pathname.startsWith('/profile') 
+                    ? 'text-primary-text border-primary-accent' 
+                    : 'text-muted-text hover:text-primary-text border-transparent'
+                }`}
               >
-                Philosophy
+                Profile
               </Link>
             </>
           ) : (
@@ -87,7 +97,7 @@ export const Navbar = () => {
 
         {/* RIGHT SIDE CALL TO ACTIONS */}
         <div className="flex items-center gap-4">
-          {isDashboard ? (
+          {isAppView && profile ? (
             <div className="flex items-center gap-3">
               {/* Premium Streak Pill */}
               <motion.div 
@@ -98,12 +108,18 @@ export const Navbar = () => {
                 <span className="text-xs font-black tracking-wider uppercase font-heading">{profile.streakDays} Days</span>
               </motion.div>
               
-              {/* Sasi's avatar or initials */}
-              <div className="w-9 h-9 rounded-full bg-secondary-surface border border-border-subtle flex items-center justify-center cursor-pointer hover:border-primary-accent/40 transition-colors">
-                <span className="text-xs font-black text-primary-accent font-heading">
-                  {profile.name.substring(0, 2).toUpperCase()}
-                </span>
-              </div>
+              {/* Clickable initials avatar opens Profile page */}
+              <Link href="/profile" className="focus:outline-none">
+                <div className={`w-9 h-9 rounded-full bg-secondary-surface border flex items-center justify-center cursor-pointer hover:border-primary-accent/50 transition-colors ${
+                  pathname.startsWith('/profile') 
+                    ? 'border-primary-accent shadow-[0_0_8px_rgba(16,185,129,0.25)]' 
+                    : 'border-border-subtle'
+                }`}>
+                  <span className="text-xs font-black text-primary-accent font-heading">
+                    {(profile.name || 'SS').substring(0, 2).toUpperCase()}
+                  </span>
+                </div>
+              </Link>
 
               <Button 
                 variant="outline" 

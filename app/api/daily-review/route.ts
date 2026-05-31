@@ -38,6 +38,41 @@ export async function POST(request: Request) {
       reflectionNote
     } = body;
 
+    // Apply robust input sanitizations and bounds checks defensively
+    const sanitizedDsa = {
+      easy: Math.max(0, Number(dsa?.easy || 0)),
+      medium: Math.max(0, Number(dsa?.medium || 0)),
+      hard: Math.max(0, Number(dsa?.hard || 0)),
+    };
+
+    const sanitizedDev = {
+      projectName: String(development?.projectName || '').trim(),
+      projectDesc: String(development?.projectDesc || '').trim(),
+      githubPushed: !!development?.githubPushed,
+      exploreNew: !!development?.exploreNew,
+      satisfactionRating: Math.min(5, Math.max(1, Number(development?.satisfactionRating || 3))),
+    };
+
+    const sanitizedSkills = Array.isArray(skills) ? skills.map((s: any) => String(s || '').trim()).filter(Boolean) : [];
+
+    const sanitizedCoreSubjects = (Array.isArray(coreSubjects) ? coreSubjects : []).map((c: any) => ({
+      subject: String(c.subject || '').trim(),
+      actualEffort: Math.min(100, Math.max(0, Number(c.actualEffort || 0))),
+    })).filter(c => c.subject !== '');
+
+    const sanitizedComm = {
+      options: Array.isArray(communication?.options) ? communication.options.map((o: any) => String(o || '').trim()).filter(Boolean) : [],
+      confidenceRating: Math.min(5, Math.max(1, Number(communication?.confidenceRating || 3))),
+    };
+
+    const sanitizedAptitude = {
+      topicName: String(aptitude?.topicName || '').trim(),
+      actualQuestions: Math.max(0, Number(aptitude?.actualQuestions || 0)),
+    };
+
+    const sanitizedPrideRating = Math.min(5, Math.max(1, Number(prideRating || 3)));
+    const sanitizedReflectionNote = String(reflectionNote || '').trim();
+
     await dbConnect();
     const user = await User.findById(decoded.userId);
     if (!user) {
@@ -68,17 +103,16 @@ export async function POST(request: Request) {
     let dsaScore = 100;
     const dsaPlanned = mission.dsaTargets.total || 0;
     if (dsaPlanned > 0) {
-      const dsaCompleted = (Number(dsa.easy) || 0) + (Number(dsa.medium) || 0) + (Number(dsa.hard) || 0);
+      const dsaCompleted = sanitizedDsa.easy + sanitizedDsa.medium + sanitizedDsa.hard;
       dsaScore = Math.min(100, (dsaCompleted / dsaPlanned) * 100);
     }
 
     // 2. Development (20% weight)
     let devScore = 100;
     if (mission.development.isBuilding) {
-      const satRating = Number(development.satisfactionRating) || 3;
-      const hoursPoints = (satRating / 5) * 50; // Max 50 points
-      const pushPoints = development.githubPushed ? 25 : 0;
-      const explorePoints = development.exploreNew ? 25 : 0;
+      const hoursPoints = (sanitizedDev.satisfactionRating / 5) * 50; // Max 50 points
+      const pushPoints = sanitizedDev.githubPushed ? 25 : 0;
+      const explorePoints = sanitizedDev.exploreNew ? 25 : 0;
       devScore = Math.min(100, hoursPoints + pushPoints + explorePoints);
     }
 
@@ -86,7 +120,7 @@ export async function POST(request: Request) {
     let skillsScore = 100;
     const skillsPlanned = mission.skills.length || 0;
     if (skillsPlanned > 0) {
-      const skillsCompleted = (skills || []).length;
+      const skillsCompleted = sanitizedSkills.length;
       skillsScore = Math.min(100, (skillsCompleted / skillsPlanned) * 100);
     }
 
@@ -96,10 +130,10 @@ export async function POST(request: Request) {
     if (corePlannedCount > 0) {
       let accumulatedRatioSum = 0;
       for (const plannedSub of mission.coreSubjects) {
-        const matchingActual = (coreSubjects || []).find(
+        const matchingActual = sanitizedCoreSubjects.find(
           (a: any) => a.subject === plannedSub.subject
         );
-        const actualEff = matchingActual ? Number(matchingActual.actualEffort) || 0 : 0;
+        const actualEff = matchingActual ? matchingActual.actualEffort : 0;
         const plannedEff = Number(plannedSub.plannedEffort) || 50;
         accumulatedRatioSum += Math.min(100, (actualEff / plannedEff) * 100);
       }
@@ -110,10 +144,9 @@ export async function POST(request: Request) {
     let commScore = 100;
     const commPlannedCount = mission.communication.options.length || 0;
     if (commPlannedCount > 0) {
-      const actualCompleted = (communication.options || []).length;
+      const actualCompleted = sanitizedComm.options.length;
       const tasksPoints = (actualCompleted / commPlannedCount) * 80;
-      const actualRating = Number(communication.confidenceRating) || 3;
-      const confidencePoints = (actualRating / 5) * 20;
+      const confidencePoints = (sanitizedComm.confidenceRating / 5) * 20;
       commScore = Math.min(100, tasksPoints + confidencePoints);
     }
 
@@ -121,7 +154,7 @@ export async function POST(request: Request) {
     let aptScore = 100;
     const aptPlanned = mission.aptitude.plannedQuestions || 0;
     if (aptPlanned > 0) {
-      const aptCompleted = Number(aptitude.actualQuestions) || 0;
+      const aptCompleted = sanitizedAptitude.actualQuestions;
       aptScore = Math.min(100, (aptCompleted / aptPlanned) * 100);
     }
 
@@ -140,33 +173,27 @@ export async function POST(request: Request) {
     mission.ddsccScore = ddsccDailyScore;
     mission.eodActuals = {
       dsa: {
-        easy: Number(dsa.easy) || 0,
-        medium: Number(dsa.medium) || 0,
-        hard: Number(dsa.hard) || 0,
-        total: (Number(dsa.easy) || 0) + (Number(dsa.medium) || 0) + (Number(dsa.hard) || 0),
+        easy: sanitizedDsa.easy,
+        medium: sanitizedDsa.medium,
+        hard: sanitizedDsa.hard,
+        total: sanitizedDsa.easy + sanitizedDsa.medium + sanitizedDsa.hard,
       },
       development: {
-        projectName: development.projectName || '',
-        projectDesc: development.projectDesc || '',
-        githubPushed: !!development.githubPushed,
-        exploreNew: !!development.exploreNew,
-        satisfactionRating: Number(development.satisfactionRating) || 3,
+        projectName: sanitizedDev.projectName,
+        projectDesc: sanitizedDev.projectDesc,
+        githubPushed: sanitizedDev.githubPushed,
+        exploreNew: sanitizedDev.exploreNew,
+        satisfactionRating: sanitizedDev.satisfactionRating,
       },
-      skills: skills || [],
-      coreSubjects: (coreSubjects || []).map((c: any) => ({
-        subject: c.subject,
-        actualEffort: Number(c.actualEffort) || 0,
-      })),
-      communication: {
-        options: communication.options || [],
-        confidenceRating: Number(communication.confidenceRating) || 3,
-      },
+      skills: sanitizedSkills,
+      coreSubjects: sanitizedCoreSubjects,
+      communication: sanitizedComm,
       aptitude: {
-        topicName: aptitude.topicName || '',
-        actualQuestions: Number(aptitude.actualQuestions) || 0,
+        topicName: sanitizedAptitude.topicName,
+        actualQuestions: sanitizedAptitude.actualQuestions,
       },
-      prideRating: Number(prideRating) || 3,
-      reflectionNote: reflectionNote || '',
+      prideRating: sanitizedPrideRating,
+      reflectionNote: sanitizedReflectionNote,
     };
 
     await mission.save();

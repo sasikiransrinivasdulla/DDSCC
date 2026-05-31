@@ -43,6 +43,7 @@ export async function GET() {
         targetRole: user.targetRole,
         currentStreak: user.currentStreak || 0,
         longestStreak: user.longestStreak || 0,
+        createdAt: user.createdAt,
       },
     });
   } catch (error) {
