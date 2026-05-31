@@ -153,6 +153,9 @@ export default function DashboardPage() {
 
   // Motivational quote rotates depending on progress level
   const getMotivationalQuote = () => {
+    if (analyticsData?.motivationSlogan) {
+      return `“${analyticsData.motivationSlogan}”`;
+    }
     if (todayMission?.isCompleted) {
       const badge = getPerformanceBadge(todayMission.ddsccScore);
       return `“${badge.desc} Today's sealed score: ${todayMission.ddsccScore}%.”`;
@@ -178,20 +181,20 @@ export default function DashboardPage() {
     return key.charAt(0).toUpperCase() + key.slice(1);
   };
 
-  // Real 30-day consistency history squares from MongoDB data
+  // Real 90-day consistency history squares from MongoDB data
   const renderRealHeatmapGrid = () => {
     if (!analyticsData || !analyticsData.heatmap) {
-      // Return 30 mock loading blocks
-      return Array.from({ length: 30 }).map((_, i) => (
-        <span key={i} className="w-5 h-5 rounded bg-[#111111] animate-pulse border border-white/5" />
+      // Return 90 mock loading blocks
+      return Array.from({ length: 90 }).map((_, i) => (
+        <span key={i} className="w-4 h-4 sm:w-5 sm:h-5 rounded bg-[#111111] animate-pulse border border-white/5" />
       ));
     }
     
     const heatmapKeys = Object.keys(analyticsData.heatmap).sort(); // YYYY-MM-DD keys sorted ascending
-    // Get the last 30 days
-    const last30Keys = heatmapKeys.slice(-30);
+    // Get the last 90 days
+    const last90Keys = heatmapKeys.slice(-90);
     
-    return last30Keys.map((dateStr) => {
+    return last90Keys.map((dateStr) => {
       const score = analyticsData.heatmap[dateStr];
       let colorClass = 'bg-[#0a0a0a] border border-white/[0.02]'; // Missing day / No mission
       let scoreLabel = 'No commitment';
@@ -209,12 +212,15 @@ export default function DashboardPage() {
         } else if (score > 40 && score <= 60) {
           colorClass = 'bg-emerald-500/30 border border-emerald-500/25 hover:border-emerald-500/45 hover:bg-emerald-500/35';
           scoreLabel = `Score: ${score}%`;
-        } else if (score > 60 && score <= 80) {
+        } else if (score > 60 && score <= 75) {
           colorClass = 'bg-emerald-500/55 border border-emerald-500/40 hover:border-emerald-500/70 hover:bg-emerald-500/60';
           scoreLabel = `Score: ${score}%`;
-        } else if (score > 80 && score <= 100) {
+        } else if (score > 75 && score <= 90) {
+          colorClass = 'bg-emerald-500/80 border border-emerald-500/60 hover:border-emerald-500/90 hover:bg-emerald-500/80';
+          scoreLabel = `Score: ${score}% (Strong Day)`;
+        } else if (score > 90 && score <= 100) {
           colorClass = 'bg-primary-accent border border-primary-accent/80 shadow-[0_0_8px_rgba(16,185,129,0.15)] hover:shadow-[0_0_12px_rgba(16,185,129,0.45)] hover:border-white';
-          scoreLabel = `Score: ${score}% (Elite)`;
+          scoreLabel = `Score: ${score}% (Beast Mode)`;
         }
       }
       
@@ -225,7 +231,7 @@ export default function DashboardPage() {
         <motion.div 
           key={dateStr}
           whileHover={{ scale: 1.25, zIndex: 10 }}
-          className={`w-5 h-5 rounded transition-all duration-300 cursor-pointer ${colorClass}`}
+          className={`w-4 h-4 sm:w-5 sm:h-5 rounded transition-all duration-300 cursor-pointer ${colorClass}`}
           onMouseEnter={() => setHoveredDay({ date: displayDate, scoreText: scoreLabel })}
           onMouseLeave={() => setHoveredDay(null)}
           onTouchStart={() => setHoveredDay({ date: displayDate, scoreText: scoreLabel })}
@@ -566,6 +572,267 @@ export default function DashboardPage() {
               </Card>
             </section>
 
+            {/* WEEKLY REFLECTION CARD */}
+            {analyticsData?.weeklyReflection && (
+              <section className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary-accent" />
+                  <h2 className="text-sm font-extrabold tracking-widest uppercase text-muted-text font-heading">
+                    Weekly Placement Reflection
+                  </h2>
+                </div>
+
+                <Card className="p-6 bg-card-surface border-border-subtle relative overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary-accent/20 to-transparent" />
+                  
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                    
+                    <div className="p-3 bg-[#070707] rounded-lg border border-border-subtle/50 text-center space-y-1">
+                      <span className="text-[9px] uppercase tracking-wider text-muted-text font-bold block">
+                        7-Day Average
+                      </span>
+                      <span className="text-xl font-black text-primary-accent font-heading block">
+                        {analyticsData.weeklyReflection.averageScore}%
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-[#070707] rounded-lg border border-border-subtle/50 text-center space-y-1">
+                      <span className="text-[9px] uppercase tracking-wider text-muted-text font-bold block">
+                        Weekly Best
+                      </span>
+                      <span className="text-xl font-black text-white font-heading block">
+                        {analyticsData.weeklyReflection.bestDayScore}%
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-[#070707] rounded-lg border border-border-subtle/50 text-center space-y-1">
+                      <span className="text-[9px] uppercase tracking-wider text-muted-text font-bold block">
+                        Strongest Area
+                      </span>
+                      <span className="text-[10px] font-black text-emerald-400 font-heading block truncate mt-1">
+                        {analyticsData.weeklyReflection.strongestArea}
+                      </span>
+                    </div>
+
+                    <div className="p-3 bg-[#070707] rounded-lg border border-border-subtle/50 text-center space-y-1">
+                      <span className="text-[9px] uppercase tracking-wider text-muted-text font-bold block">
+                        Focus Needed
+                      </span>
+                      <span className="text-[10px] font-black text-orange-400 font-heading block truncate mt-1">
+                        {analyticsData.weeklyReflection.weakestArea}
+                      </span>
+                    </div>
+
+                  </div>
+                </Card>
+              </section>
+            )}
+
+            {/* STREAK PROTECTION CARD */}
+            {analyticsData && (
+              <div className="mt-4">
+                {analyticsData.stats.currentStreak === 0 && analyticsData.stats.longestStreak > 0 ? (
+                  <Card className="p-5 bg-card-surface border-orange-500/20 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 bottom-0 w-[4px] bg-orange-500" />
+                    <div className="flex items-start gap-4">
+                      <div className="w-9 h-9 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500 shrink-0 text-lg">
+                        🛡️
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[9px] uppercase font-extrabold tracking-widest text-orange-400 block font-heading">
+                          Streak Shield Activated
+                        </span>
+                        <h4 className="text-sm font-black text-white uppercase tracking-wider font-heading">
+                          One missed day does not define your journey
+                        </h4>
+                        <p className="text-xs text-muted-text leading-relaxed">
+                          Your streak has reset, but your knowledge, progress, and capabilities remain intact. The covenant starts fresh today. Seal your morning oath to build new momentum!
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                ) : !todayMission?.isCompleted && analyticsData.stats.currentStreak > 0 ? (
+                  <Card className="p-5 bg-card-surface border-primary-accent/25 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 bottom-0 w-[4px] bg-primary-accent" />
+                    <div className="flex items-start gap-4">
+                      <div className="w-9 h-9 rounded-full bg-primary-accent/10 flex items-center justify-center text-primary-accent shrink-0 text-lg">
+                        ⚡
+                      </div>
+                      <div className="space-y-1">
+                        <span className="text-[9px] uppercase font-extrabold tracking-widest text-primary-accent block font-heading">
+                          Streak Active & Protected
+                        </span>
+                        <h4 className="text-sm font-black text-white uppercase tracking-wider font-heading">
+                          Defend your {analyticsData.stats.currentStreak}-day consistency streak!
+                        </h4>
+                        <p className="text-xs text-muted-text leading-relaxed">
+                          Your active placement streak is secured. Seal your EOD night reflection when your tasks are done to successfully roll it over to tomorrow!
+                        </p>
+                      </div>
+                    </div>
+                  </Card>
+                ) : null}
+              </div>
+            )}
+
+            {/* PRIMARY 90-DAY HISTORY CONSISTENCY HEATMAP */}
+            <Card className="p-6 bg-card-surface border-border-subtle relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary-accent/20 to-transparent" />
+              <CardHeader className="p-0 mb-4">
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="w-4 h-4 text-primary-accent" />
+                    <CardTitle className="text-sm font-bold text-white uppercase tracking-wider font-heading">
+                      90-Day Consistency Heatmap Grid
+                    </CardTitle>
+                  </div>
+                  <span className="text-[9px] uppercase font-extrabold tracking-widest text-muted-text font-heading bg-secondary-surface px-2.5 py-1 rounded border border-border-subtle/50">
+                    Live Preparation Matrix
+                  </span>
+                </div>
+              </CardHeader>
+
+              <CardContent className="p-0 space-y-4">
+                {/* 90 block grids */}
+                <div className="flex flex-wrap gap-2 justify-center py-2 bg-[#060606] p-4 rounded-xl border border-border-subtle/40">
+                  {renderRealHeatmapGrid()}
+                </div>
+
+                {/* Dynamic Interactive HUD Overlay */}
+                <div className="text-center py-2 h-7 flex items-center justify-center border-t border-border-subtle/30 bg-[#050505] rounded-lg border border-border-subtle/45 select-none">
+                  {hoveredDay ? (
+                    <span className="text-[10px] text-primary-accent font-extrabold uppercase tracking-widest animate-pulse">
+                      ⚡ {hoveredDay.date} : {hoveredDay.scoreText}
+                    </span>
+                  ) : (
+                    <span className="text-[9px] text-muted-text font-bold uppercase tracking-wider">
+                      Hover cells to inspect placement ledger coefficient
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between text-[9px] text-muted-text font-bold uppercase tracking-wider border-t border-border-subtle/30 pt-3">
+                  <span>Less Active</span>
+                  <div className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded bg-[#0a0a0a] border border-white/[0.02]" />
+                    <span className="w-2.5 h-2.5 rounded bg-[#131313] border border-white/5" />
+                    <span className="w-2.5 h-2.5 rounded bg-emerald-500/10 border border-emerald-500/15" />
+                    <span className="w-2.5 h-2.5 rounded bg-emerald-500/30 border border-emerald-500/25" />
+                    <span className="w-2.5 h-2.5 rounded bg-emerald-500/55 border border-emerald-500/40" />
+                    <span className="w-2.5 h-2.5 rounded bg-primary-accent border border-primary-accent/80 shadow-[0_0_10px_rgba(16,185,129,0.15)]" />
+                  </div>
+                  <span>Highly Consistent</span>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* SPACIOUS REAL ACTIVITY TIMELINE */}
+            <Card className="p-6 bg-card-surface border-border-subtle relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary-accent/20 to-transparent" />
+              <CardHeader className="p-0 mb-4 flex flex-row items-center justify-between">
+                <div>
+                  <span className="text-[9px] uppercase font-extrabold tracking-widest text-muted-text block">
+                    Discipline Ledger
+                  </span>
+                  <CardTitle className="text-sm font-bold text-white font-heading mt-0.5 uppercase tracking-wider">
+                    Placement Journey Timeline Logs
+                  </CardTitle>
+                </div>
+                <span className="text-[9px] uppercase font-extrabold text-primary-accent bg-primary-accent/5 px-2 py-0.5 rounded border border-primary-accent/15">
+                  Dynamic Logs
+                </span>
+              </CardHeader>
+
+              <CardContent className="p-0">
+                {analyticsLoading ? (
+                  <div className="py-8 text-center text-xs text-muted-text animate-pulse">
+                    Retrieving activities from placement ledger...
+                  </div>
+                ) : analyticsData?.activityTimeline && analyticsData.activityTimeline.length > 0 ? (
+                  <div className="relative border-l border-border-subtle/40 ml-3 pl-6 space-y-5 py-1">
+                    {analyticsData.activityTimeline.slice(0, 10).map((act: any) => {
+                      // Determine badge/color based on type
+                      let dotColor = 'bg-muted-text';
+                      let iconLabel = 'Commit';
+                      let bgTint = 'bg-[#060606]';
+                      let borderTint = 'border-border-subtle/30';
+                      if (act.type === 'missed') {
+                        dotColor = 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]';
+                        iconLabel = 'Decay';
+                        bgTint = 'bg-red-500/5';
+                        borderTint = 'border-red-500/20';
+                      } else if (act.type === 'eod') {
+                        dotColor = 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]';
+                        iconLabel = 'Seal';
+                        bgTint = 'bg-emerald-500/5';
+                        borderTint = 'border-emerald-500/20';
+                      } else if (act.type === 'dsa') {
+                        dotColor = 'bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.4)]';
+                        iconLabel = 'DSA';
+                        bgTint = 'bg-blue-500/5';
+                        borderTint = 'border-blue-500/20';
+                      } else if (act.type === 'dev' || act.type === 'github') {
+                        dotColor = 'bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.4)]';
+                        iconLabel = 'Dev';
+                        bgTint = 'bg-purple-500/5';
+                        borderTint = 'border-purple-500/20';
+                      } else if (act.type === 'skills') {
+                        dotColor = 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]';
+                        iconLabel = 'Skill';
+                        bgTint = 'bg-amber-500/5';
+                        borderTint = 'border-amber-500/20';
+                      } else if (act.type === 'aptitude') {
+                        dotColor = 'bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.4)]';
+                        iconLabel = 'Apt';
+                        bgTint = 'bg-indigo-500/5';
+                        borderTint = 'border-indigo-500/20';
+                      } else if (act.type === 'comm') {
+                        dotColor = 'bg-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.4)]';
+                        iconLabel = 'Comm';
+                        bgTint = 'bg-pink-500/5';
+                        borderTint = 'border-pink-500/20';
+                      } else if (act.type === 'mission') {
+                        dotColor = 'bg-primary-accent shadow-[0_0_8px_rgba(16,185,129,0.4)]';
+                        iconLabel = 'Oath';
+                        bgTint = 'bg-primary-accent/5';
+                        borderTint = 'border-primary-accent/20';
+                      }
+                      
+                      const dateObj = new Date(act.date);
+                      const formattedDate = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+
+                      return (
+                        <div key={act.id} className="relative group">
+                          {/* Timeline bullet element */}
+                          <span className={`absolute -left-[30px] top-1.5 w-3 h-3 rounded-full border-2 border-background transition-all duration-300 group-hover:scale-125 ${dotColor}`} />
+                          
+                          <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3.5 rounded-xl border ${bgTint} ${borderTint} hover:border-primary-accent/25 hover:bg-[#080808]/80 transition-all duration-300`}>
+                            <div className="space-y-1">
+                              <p className="text-xs font-bold text-white tracking-wide">
+                                {act.message}
+                              </p>
+                              <span className="text-[8.5px] uppercase font-extrabold text-muted-text tracking-widest block font-heading">
+                                Type: {iconLabel}
+                              </span>
+                            </div>
+                            <span className="text-[9px] uppercase font-bold tracking-widest text-[#9E9E9E] shrink-0 font-mono">
+                              🗓️ {formattedDate}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 bg-[#060606] rounded-xl border border-border-subtle/40 p-4">
+                    <p className="text-xs text-muted-text leading-relaxed font-semibold">
+                      No chronological activities committed to ledger yet. Commit to a daily oath to register logs.
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
           </div>
 
           {/* RIGHT SECTION (OATH CARD, TASKS CHECKLIST, HISTORY GRID) */}
@@ -779,378 +1046,82 @@ export default function DashboardPage() {
                 </div>
               </Card>
             )}
-            
-            {/* REAL ACTIVITY TIMELINE */}
-            <Card className="p-5 bg-card-surface border-border-subtle">
-              <CardHeader className="p-0 mb-3">
-                <span className="text-[9px] uppercase font-extrabold tracking-widest text-muted-text">
-                  Discipline Logs
+
+            {/* MONTHLY AVERAGE GROWTH HUD */}
+            {analyticsData && (
+              <Card className="p-5 bg-card-surface border-border-subtle relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary-accent/20 to-transparent" />
+                <span className="text-[9px] uppercase font-extrabold tracking-widest text-primary-accent font-heading block">
+                  Discipline MoM Growth
                 </span>
-                <CardTitle className="text-sm font-bold text-white font-heading mt-0.5">
-                  Real Activity Timeline
-                </CardTitle>
-              </CardHeader>
-
-              <CardContent className="p-0">
-                {analyticsLoading ? (
-                  <div className="py-6 text-center text-xs text-muted-text animate-pulse">
-                    Retrieving activities from placement ledger...
-                  </div>
-                ) : analyticsData?.activityTimeline && analyticsData.activityTimeline.length > 0 ? (
-                  <div className="relative border-l border-border-subtle/40 ml-2 pl-4 space-y-3.5 py-0.5">
-                    {analyticsData.activityTimeline.map((act: any) => {
-                      // Determine badge/color based on type
-                      let dotColor = 'bg-muted-text';
-                      let iconLabel = 'Commit';
-                      if (act.type === 'missed') {
-                        dotColor = 'bg-red-500 shadow-md shadow-red-950/20';
-                        iconLabel = 'Decay';
-                      } else if (act.type === 'eod') {
-                        dotColor = 'bg-emerald-400 shadow-md shadow-emerald-950/20';
-                        iconLabel = 'Seal';
-                      } else if (act.type === 'dsa') {
-                        dotColor = 'bg-blue-400 shadow-md shadow-blue-950/20';
-                        iconLabel = 'DSA';
-                      } else if (act.type === 'dev' || act.type === 'github') {
-                        dotColor = 'bg-purple-400 shadow-md shadow-purple-950/20';
-                        iconLabel = 'Dev';
-                      } else if (act.type === 'skills') {
-                        dotColor = 'bg-amber-400 shadow-md shadow-amber-950/20';
-                        iconLabel = 'Skill';
-                      } else if (act.type === 'aptitude') {
-                        dotColor = 'bg-indigo-400 shadow-md shadow-indigo-950/20';
-                        iconLabel = 'Apt';
-                      } else if (act.type === 'comm') {
-                        dotColor = 'bg-pink-400 shadow-md shadow-pink-950/20';
-                        iconLabel = 'Comm';
-                      } else if (act.type === 'mission') {
-                        dotColor = 'bg-primary-accent shadow-md shadow-emerald-950/20';
-                        iconLabel = 'Oath';
-                      }
-                      
-                      const dateObj = new Date(act.date);
-                      const formattedDate = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', timeZone: 'UTC' });
-
-                      return (
-                        <div key={act.id} className="relative">
-                          {/* Timeline bullet element */}
-                          <span className={`absolute -left-[22px] top-1.5 w-2 h-2 rounded-full border border-black/40 ${dotColor}`} />
-                          
-                          <div className="flex flex-col space-y-0.5">
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-[8px] uppercase font-extrabold tracking-widest text-muted-text font-mono">
-                                {formattedDate} • {iconLabel}
-                              </span>
-                            </div>
-                            <p className="text-[10.5px] text-primary-text leading-snug">
-                              {act.message}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="text-center py-6">
-                    <p className="text-[10px] text-muted-text leading-relaxed">
-                      No chronological activities committed to ledger yet. Commit to a daily oath to register logs.
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* COMMIT HISTORY GRID (GITHUB HEATMAP STYLE) */}
-            <Card className="p-6 bg-card-surface border-border-subtle">
-              <CardHeader className="p-0 mb-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-4 h-4 text-primary-accent" />
-                    <CardTitle className="text-base font-bold text-white font-heading">
-                      History Consistency Matrix
-                    </CardTitle>
-                  </div>
-                  <span className="text-[10px] text-muted-text font-bold">30 Days</span>
-                </div>
-              </CardHeader>
-
-              <CardContent className="p-0">
-                {/* 30 block grids */}
-                <div className="flex flex-wrap gap-2.5 justify-center py-2">
-                  {renderRealHeatmapGrid()}
-                </div>
-
-                {/* Dynamic Interactive HUD Overlay */}
-                <div className="text-center py-1.5 h-6 flex items-center justify-center border-t border-border-subtle/30 mt-3 select-none">
-                  {hoveredDay ? (
-                    <span className="text-[10px] text-primary-accent font-extrabold uppercase tracking-widest animate-pulse">
-                      ⚡ {hoveredDay.date} : {hoveredDay.scoreText}
-                    </span>
-                  ) : (
-                    <span className="text-[9px] text-muted-text font-bold uppercase tracking-wider">
-                      Hover cells to inspect Prep ledger
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between text-[9px] text-muted-text font-bold uppercase tracking-wider mt-2 border-t border-border-subtle/30 pt-3">
-                  <span>Less Active</span>
-                  <div className="flex items-center gap-1">
-                    <span className="w-2.5 h-2.5 rounded bg-[#0a0a0a] border border-white/[0.02]" />
-                    <span className="w-2.5 h-2.5 rounded bg-[#131313] border border-white/5" />
-                    <span className="w-2.5 h-2.5 rounded bg-emerald-500/10 border border-emerald-500/15" />
-                    <span className="w-2.5 h-2.5 rounded bg-emerald-500/30 border border-emerald-500/25" />
-                    <span className="w-2.5 h-2.5 rounded bg-emerald-500/55 border border-emerald-500/40" />
-                    <span className="w-2.5 h-2.5 rounded bg-primary-accent border border-primary-accent/80 shadow-[0_0_10px_rgba(16,185,129,0.15)]" />
-                  </div>
-                  <span>Highly Consistent</span>
-                </div>
-              </CardContent>
-            </Card>
-
-          </div>
-
-        </div>
-
-        {/* PLACEMENT BEHAVIORAL ANALYTICS SECTION */}
-        <div className="mt-8">
-          {/* GLOWING HORIZONTAL SEPARATOR */}
-          <div className="my-8 border-t border-border-subtle/40 relative">
-            <div className="absolute left-1/2 -translate-x-1/2 -top-3 bg-[#050505] px-6 text-xs uppercase font-extrabold tracking-widest text-primary-accent">
-              Placement Insights & Analytics
-            </div>
-          </div>
-
-          {analyticsLoading ? (
-            <div className="py-16 text-center">
-              <span className="text-xs uppercase font-extrabold tracking-widest text-muted-text animate-pulse block">
-                Aggregating live consistency metrics...
-              </span>
-            </div>
-          ) : !analyticsData || analyticsData.stats.totalActiveDays === 0 ? (
-            <Card className="p-8 text-center bg-card-surface border-border-subtle relative overflow-hidden max-w-xl mx-auto">
-              <span className="text-[10px] uppercase font-extrabold tracking-widest text-primary-accent font-heading block">
-                No active days compiled
-              </span>
-              <h3 className="text-lg font-black text-white uppercase tracking-wider font-heading mt-2">
-                Begin your discipline logs
-              </h3>
-              <p className="text-xs text-muted-text mt-2 leading-relaxed font-semibold">
-                Your morning commitments are registered. Complete your very first evening reflection honestly to calculate today&apos;s score and launch your placement heatmaps.
-              </p>
-            </Card>
-          ) : (
-            <div className="space-y-8">
-              
-              {/* SECTION 1 - PERFORMANCE OVERVIEW STATS CARDS */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                <Card className="p-5 flex flex-col justify-between">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-muted-text">
-                    Current Streak
-                  </span>
-                  <span className="text-xl font-black text-white mt-1 font-heading">
-                    🔥 {analyticsData.stats.currentStreak} Days
-                  </span>
-                </Card>
-                <Card className="p-5 flex flex-col justify-between">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-muted-text">
-                    Best Streak
-                  </span>
-                  <span className="text-xl font-black text-white mt-1 font-heading">
-                    🏆 {analyticsData.stats.longestStreak} Days
-                  </span>
-                </Card>
-                <Card className="p-5 flex flex-col justify-between">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-muted-text">
-                    Average DDSCC Score
-                  </span>
-                  <span className="text-xl font-black text-white mt-1 font-heading">
-                    🎯 {analyticsData.stats.averageDdsccScore}%
-                  </span>
-                </Card>
-                <Card className="p-5 flex flex-col justify-between">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-muted-text">
-                    Total Active Days
-                  </span>
-                  <span className="text-xl font-black text-white mt-1 font-heading">
-                    ⚡ {analyticsData.stats.totalActiveDays} Days
-                  </span>
-                </Card>
-              </div>
-
-              {/* MONTHLY PERFORMANCE & GITHUB HEATMAP GRID */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                <h4 className="text-sm font-black text-white uppercase tracking-wider font-heading mt-0.5 mb-4">
+                  Monthly Performance averages
+                </h4>
                 
-                {/* SECTION 3 - MONTHLY PERFORMANCE (col-span-4) */}
-                <Card className="lg:col-span-4 p-6 flex flex-col justify-between">
-                  <div>
-                    <span className="text-[10px] uppercase font-extrabold tracking-widest text-primary-accent font-heading block">
-                      Discipline Index Growth
-                    </span>
-                    <h3 className="text-base font-black text-white uppercase tracking-wider font-heading mt-1 mb-6">
-                      Monthly Averages
-                    </h3>
-                    
-                    <div className="space-y-4">
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="font-semibold text-muted-text">Current Month Avg</span>
-                        <span className="text-white font-extrabold">{analyticsData.monthlyPerformance.currentMonthAvg}%</span>
-                      </div>
-                      <div className="flex justify-between items-center text-xs">
-                        <span className="font-semibold text-muted-text">Previous Month Avg</span>
-                        <span className="text-white font-extrabold">{analyticsData.monthlyPerformance.prevMonthAvg}%</span>
-                      </div>
-                    </div>
+                <div className="space-y-3.5">
+                  <div className="flex justify-between items-center p-2.5 bg-[#060606] rounded-lg border border-border-subtle/40 text-xs">
+                    <span className="font-semibold text-muted-text">Current Month Avg</span>
+                    <span className="text-white font-extrabold font-mono">{analyticsData.monthlyPerformance.currentMonthAvg}%</span>
+                  </div>
+                  <div className="flex justify-between items-center p-2.5 bg-[#060606] rounded-lg border border-border-subtle/40 text-xs">
+                    <span className="font-semibold text-muted-text">Previous Month Avg</span>
+                    <span className="text-white font-extrabold font-mono">{analyticsData.monthlyPerformance.prevMonthAvg}%</span>
                   </div>
 
-                  <div className="mt-8 border-t border-border-subtle/30 pt-4 flex justify-between items-center">
-                    <span className="text-xs text-muted-text">Month-over-Month Growth</span>
-                    <span className={`text-base font-black font-heading px-2 py-0.5 rounded ${
+                  <div className="pt-2 border-t border-border-subtle/30 flex justify-between items-center">
+                    <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider">MoM Net Growth</span>
+                    <span className={`text-xs font-black font-heading px-2 py-0.5 rounded border ${
                       analyticsData.monthlyPerformance.growthPercentage >= 0 
-                        ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                        : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                        : 'bg-red-500/10 text-red-400 border-red-500/20'
                     }`}>
-                      {analyticsData.monthlyPerformance.growthPercentage >= 0 ? '+' : ''}
+                      {analyticsData.monthlyPerformance.growthPercentage >= 0 ? '▲ +' : '▼ '}
                       {analyticsData.monthlyPerformance.growthPercentage}%
                     </span>
                   </div>
-                </Card>
+                </div>
+              </Card>
+            )}
 
-                {/* SECTION 4 - GITHUB CONTRIBUTION STYLE HEATMAP (col-span-8) */}
-                <Card className="lg:col-span-8 p-6 flex flex-col justify-between">
-                  <div>
-                    <div className="flex justify-between items-center mb-6">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-4 h-4 text-primary-accent" />
-                        <h3 className="text-sm font-bold text-white uppercase tracking-wider font-heading">
-                          90-Day Consistency Map
-                        </h3>
-                      </div>
-                      <span className="text-[10px] text-muted-text uppercase font-bold tracking-wider">
-                        Last 3 Months Grid
-                      </span>
-                    </div>
+            {/* DATA-DRIVEN PERSONAL GROWTH INSIGHTS */}
+            {analyticsData && analyticsData.insights && analyticsData.insights.length > 0 && (
+              <Card className="p-5 bg-card-surface border-border-subtle relative overflow-hidden">
+                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary-accent/20 to-transparent" />
+                <span className="text-[9px] uppercase font-extrabold tracking-widest text-primary-accent font-heading block">
+                  Discipline Report
+                </span>
+                <h4 className="text-sm font-black text-white uppercase tracking-wider font-heading mt-0.5 mb-4">
+                  Placement Insights
+                </h4>
 
-                    <div className="grid grid-flow-col grid-rows-7 gap-1.5 overflow-x-auto py-2">
-                      {Object.entries(analyticsData.heatmap).map(([dateStr, score]: any) => {
-                        let colorClass = 'bg-[#111] border border-white/5';
-                        if (score >= 0) {
-                          if (score === 0) colorClass = 'bg-[#1a0f0f] border border-red-500/15';
-                          else if (score < 40) colorClass = 'bg-red-500/10 border border-red-500/30';
-                          else if (score < 60) colorClass = 'bg-emerald-500/10 border border-emerald-500/20';
-                          else if (score < 75) colorClass = 'bg-emerald-500/25 border border-emerald-500/35';
-                          else if (score < 90) colorClass = 'bg-emerald-500/50 border border-emerald-500/60';
-                          else colorClass = 'bg-primary-accent border border-primary-accent/80 glow-emerald-sm';
-                        }
-                        
-                        return (
-                          <div
-                            key={dateStr}
-                            className={`w-3.5 h-3.5 rounded transition-all cursor-help hover:scale-110 ${colorClass}`}
-                            title={`${dateStr}: ${score >= 0 ? score + '%' : 'No mission committed'}`}
-                          />
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center justify-between text-[9px] text-muted-text font-bold uppercase tracking-wider mt-6 border-t border-border-subtle/40 pt-4">
-                    <span>Less Disciplined</span>
-                    <div className="flex items-center gap-1">
-                      <span className="w-2.5 h-2.5 rounded bg-[#11] border border-white/5" />
-                      <span className="w-2.5 h-2.5 rounded bg-emerald-500/10 border border-emerald-500/20" />
-                      <span className="w-2.5 h-2.5 rounded bg-emerald-500/25 border border-emerald-500/35" />
-                      <span className="w-2.5 h-2.5 rounded bg-emerald-500/50 border border-emerald-500/60" />
-                      <span className="w-2.5 h-2.5 rounded bg-primary-accent border border-primary-accent/80" />
-                    </div>
-                    <span>Elite (90%+)</span>
-                  </div>
-                </Card>
-
-              </div>
-
-              {/* CATEGORY METRICS & DATA-DRIVEN INSIGHTS */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-                
-                {/* SECTION 6 - CATEGORY LIFETIME ANALYTICS (col-span-7) */}
-                <Card className="lg:col-span-7 p-6">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-primary-accent font-heading block">
-                    Discipline Pillars
-                  </span>
-                  <h3 className="text-base font-black text-white uppercase tracking-wider font-heading mt-1 mb-6">
-                    Category Weaknesses & Strengths
-                  </h3>
-
-                  <div className="space-y-4">
-                    {Object.entries(analyticsData.categoryAverages).map(([category, avgScore]: any) => {
-                      const nameMap: Record<string, string> = {
-                        dsa: 'DSA & Algorithms',
-                        development: 'Development Builds',
-                        skills: 'Technical Skills Focus',
-                        core: 'CS Core Fundamentals',
-                        communication: 'Communication & Verbal',
-                        aptitude: 'Aptitude & Analytical',
-                      };
-                      return (
-                        <div key={category} className="space-y-1.5">
-                          <div className="flex justify-between items-center text-xs font-bold">
-                            <span className="text-white">{nameMap[category] || category}</span>
-                            <span className="text-primary-accent font-heading font-extrabold">{avgScore}%</span>
-                          </div>
-                          <div className="w-full bg-[#111] h-2 rounded-full overflow-hidden border border-white/[0.03]">
-                            <div 
-                              className={`h-full rounded-full transition-all duration-500 ${
-                                avgScore >= 75 ? 'bg-primary-accent' : avgScore >= 60 ? 'bg-amber-400' : 'bg-red-500/80'
-                              }`}
-                              style={{ width: `${avgScore}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </Card>
-
-                {/* SECTION 7 - PERSONAL GROWTH DATA-DRIVEN INSIGHTS (col-span-5) */}
-                <Card className="lg:col-span-5 p-6 flex flex-col justify-between">
-                  <div>
-                    <span className="text-[10px] uppercase font-extrabold tracking-widest text-primary-accent font-heading block">
-                      Discipline Report
-                    </span>
-                    <h3 className="text-base font-black text-white uppercase tracking-wider font-heading mt-1 mb-6">
-                      Personal Growth Insights
-                    </h3>
-
-                    <div className="space-y-4">
-                      {analyticsData.insights.map((insight: string, idx: number) => (
-                        <div 
-                          key={idx} 
-                          className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 flex items-start gap-2.5"
-                        >
-                          <Sparkles className="w-4 h-4 text-primary-accent shrink-0 mt-0.5" />
-                          <p className="text-xs text-primary-text leading-relaxed font-semibold">
-                            {insight}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="mt-8 pt-4 border-t border-border-subtle/40 text-center">
-                    <Button 
-                      variant="secondary"
-                      className="text-[10px] py-3.5 w-full uppercase font-extrabold tracking-widest font-heading"
-                      onClick={() => router.push('/history')}
+                <div className="space-y-3">
+                  {analyticsData.insights.map((insight: string, idx: number) => (
+                    <div 
+                      key={idx} 
+                      className="p-3 bg-[#060606] rounded-lg border border-border-subtle/40 flex items-start gap-2.5 hover:border-primary-accent/20 transition-all duration-300"
                     >
-                      View Chronological History Archive
-                    </Button>
-                  </div>
-                </Card>
+                      <Sparkles className="w-3.5 h-3.5 text-primary-accent shrink-0 mt-0.5" />
+                      <p className="text-[10.5px] text-[#9E9E9E] leading-relaxed font-semibold">
+                        {insight}
+                      </p>
+                    </div>
+                  ))}
+                </div>
 
-              </div>
+                <div className="mt-4 pt-3 border-t border-border-subtle/30">
+                  <Button 
+                    variant="secondary"
+                    className="text-[9px] py-3.5 w-full uppercase font-extrabold tracking-widest font-heading hover:border-primary-accent/30"
+                    onClick={() => router.push('/history')}
+                  >
+                    View Chronological History
+                  </Button>
+                </div>
+              </Card>
+            )}
 
-            </div>
-          )}
+          </div>
+
         </div>
 
       </main>

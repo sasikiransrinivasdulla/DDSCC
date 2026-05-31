@@ -45,7 +45,7 @@ export const Footer = () => {
             <a 
               href="https://github.com/sasikiransrinivasdulla" 
               target="_blank" 
-              rel="noreferrer" 
+              rel="noopener noreferrer" 
               className="text-primary-text font-semibold hover:text-primary-accent hover:underline decoration-primary-accent/40 decoration-2 transition-all duration-300 inline-block hover:shadow-[0_0_8px_rgba(16,185,129,0.2)]"
             >
               Sasi
@@ -54,7 +54,7 @@ export const Footer = () => {
             <a 
               href="https://github.com/roshinichelluri" 
               target="_blank" 
-              rel="noreferrer" 
+              rel="noopener noreferrer" 
               className="text-primary-text font-semibold hover:text-primary-accent hover:underline decoration-primary-accent/40 decoration-2 transition-all duration-300 inline-block hover:shadow-[0_0_8px_rgba(16,185,129,0.2)]"
             >
               Roshini
@@ -64,7 +64,7 @@ export const Footer = () => {
             <a 
               href="https://github.com/sasikiransrinivasdulla/DDSCC" 
               target="_blank" 
-              rel="noreferrer" 
+              rel="noopener noreferrer" 
               className="flex items-center gap-2 text-xs font-semibold text-muted-text hover:text-primary-accent transition-colors duration-300 group"
             >
               <svg 

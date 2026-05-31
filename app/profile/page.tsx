@@ -194,6 +194,159 @@ export default function ProfilePage() {
           </Card>
         </section>
 
+        {/* ACHIEVEMENT & PERSONAL RECORDS HUB */}
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          
+          {/* PERSONAL BEST RECORDS & ACHIEVEMENTS (col-span-8) */}
+          <div className="lg:col-span-8 space-y-6">
+            
+            {/* 1. PERSONAL RECORDS SECTION */}
+            <Card className="p-5 bg-card-surface border-border-subtle relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary-accent/20 to-transparent" />
+              <div className="flex items-center gap-2 border-b border-border-subtle/30 pb-3 mb-4">
+                <TrophyIcon className="w-5 h-5 text-amber-500" />
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-white font-heading">
+                  Personal Best Records
+                </CardTitle>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {analyticsData?.personalBests ? (
+                  Object.entries(analyticsData.personalBests).map(([key, record]: any) => (
+                    <div 
+                      key={key}
+                      className="p-4 bg-[#070707] rounded-lg border border-border-subtle/40 hover:border-primary-accent/20 transition-all duration-300 group hover:-translate-y-0.5"
+                    >
+                      <span className="text-[9px] uppercase font-extrabold text-primary-accent bg-primary-accent/5 px-2 py-0.5 rounded border border-primary-accent/15">
+                        {record.badge}
+                      </span>
+                      <h4 className="text-xs text-muted-text font-bold mt-2 uppercase tracking-wider">
+                        {record.label}
+                      </h4>
+                      <div className="flex items-baseline gap-2 mt-1">
+                        <span className="text-2xl font-black text-white font-heading">
+                          {record.value}
+                        </span>
+                        {record.date && (
+                          <span className="text-[9px] text-muted-text/80 font-semibold uppercase">
+                            on {new Date(record.date).toLocaleDateString([], { month: 'short', day: 'numeric', timeZone: 'UTC' })}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-2 py-6 text-center text-xs text-muted-text">
+                    Complete your daily reviews to register personal records.
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            {/* 2. ACHIEVEMENTS GALLERY */}
+            <Card className="p-5 bg-card-surface border-border-subtle relative overflow-hidden">
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary-accent/20 to-transparent" />
+              <div className="flex items-center gap-2 border-b border-border-subtle/30 pb-3 mb-4">
+                <Award className="w-5 h-5 text-primary-accent" />
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-white font-heading">
+                  Personal Covenant Achievements
+                </CardTitle>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                {analyticsData?.achievements ? (
+                  analyticsData.achievements.map((ach: any) => (
+                    <div 
+                      key={ach.id}
+                      className={`p-4 rounded-lg border transition-all duration-300 text-center flex flex-col items-center justify-between min-h-[140px] group ${
+                        ach.unlocked 
+                          ? 'bg-primary-accent/5 border-primary-accent/30 shadow-[0_0_15px_rgba(16,185,129,0.05)] hover:border-primary-accent/50' 
+                          : 'bg-[#070707] border-border-subtle/40 opacity-40 hover:opacity-50'
+                      }`}
+                    >
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-transform duration-500 ${
+                        ach.unlocked 
+                          ? 'bg-primary-accent/10 border border-primary-accent/30 shadow-[0_0_10px_rgba(16,185,129,0.15)] group-hover:scale-110' 
+                          : 'bg-[#121212] border border-white/5'
+                      }`}>
+                        {ach.unlocked ? ach.icon : '🔒'}
+                      </div>
+                      <div className="mt-2 space-y-1">
+                        <h4 className="text-xs font-black text-white uppercase tracking-wider font-heading">
+                          {ach.title}
+                        </h4>
+                        <p className="text-[9px] text-muted-text font-medium leading-tight max-w-[120px] mx-auto">
+                          {ach.desc}
+                        </p>
+                      </div>
+                      <div className="mt-2">
+                        {ach.unlocked ? (
+                          <span className="text-[8px] uppercase font-extrabold text-primary-accent bg-primary-accent/10 px-1.5 py-0.5 rounded border border-primary-accent/20">
+                            Unlocked {ach.unlockDate && new Date(ach.unlockDate).toLocaleDateString([], { month: 'short', day: 'numeric', timeZone: 'UTC' })}
+                          </span>
+                        ) : (
+                          <span className="text-[8px] uppercase font-extrabold text-muted-text bg-secondary-surface px-1.5 py-0.5 rounded border border-border-subtle/50">
+                            Locked
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="col-span-3 py-6 text-center text-xs text-muted-text">
+                    Achievements chamber loading...
+                  </div>
+                )}
+              </div>
+            </Card>
+
+          </div>
+
+          {/* DDSCC JOURNEY TIMELINE (col-span-4) */}
+          <div className="lg:col-span-4">
+            <Card className="p-5 bg-card-surface border-border-subtle relative overflow-hidden h-full min-h-[480px]">
+              <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary-accent/20 to-transparent" />
+              <div className="flex items-center gap-2 border-b border-border-subtle/30 pb-3 mb-4">
+                <Compass className="w-5 h-5 text-emerald-400" />
+                <CardTitle className="text-sm font-bold uppercase tracking-wider text-white font-heading">
+                  DDSCC Journey Timeline
+                </CardTitle>
+              </div>
+
+              <div className="relative border-l border-border-subtle/50 pl-4 ml-2 space-y-5 my-2">
+                {analyticsData?.journeyTimeline && analyticsData.journeyTimeline.length > 0 ? (
+                  analyticsData.journeyTimeline.map((item: any, index: number) => (
+                    <div key={index} className="relative group">
+                      {/* Node Bullet */}
+                      <div className="absolute -left-[21px] top-1.5 w-2.5 h-2.5 rounded-full bg-[#050505] border border-primary-accent/60 group-hover:bg-primary-accent transition-all duration-300 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                      
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[10px] text-primary-accent font-bold uppercase tracking-wider">
+                            {new Date(item.date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' })}
+                          </span>
+                          <span className="text-xs">{item.icon}</span>
+                        </div>
+                        <h4 className="text-xs font-black text-white uppercase tracking-wider font-heading">
+                          {item.title}
+                        </h4>
+                        <p className="text-[10px] text-muted-text font-medium leading-relaxed">
+                          {item.desc}
+                        </p>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="py-12 text-center text-xs text-muted-text">
+                    Journey chronology is loading...
+                  </div>
+                )}
+              </div>
+            </Card>
+          </div>
+
+        </section>
+
         {/* HISTORY EXPLORER INTEGRATED COLUMN GRIDS */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           

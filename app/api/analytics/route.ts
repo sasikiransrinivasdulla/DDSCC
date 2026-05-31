@@ -382,6 +382,295 @@ export async function GET() {
     // Slice to the most recent 12 timeline actions to fit visual layout
     const slicedTimeline = activityTimeline.slice(0, 12);
 
+    // -------------------------------------------------------------
+    // PHASE 9 — DYNAMIC TELEMETRY CALCULATIONS
+    // -------------------------------------------------------------
+
+    // 1. Scan daily missions chronologically to discover dynamic achievement unlocks
+    let tempStreak = 0;
+    let firstStepDate: string | null = null;
+    let consistencyStarterDate: string | null = null;
+    let disciplineBuilderDate: string | null = null;
+    let momentumEngineDate: string | null = null;
+    let relentlessDate: string | null = null;
+    let unstoppableDate: string | null = null;
+
+    for (const m of allMissions) {
+      if (m.isCompleted && !m.isMissed) {
+        if (!firstStepDate) firstStepDate = m.dateString;
+        tempStreak++;
+        if (tempStreak >= 3 && !consistencyStarterDate) consistencyStarterDate = m.dateString;
+        if (tempStreak >= 7 && !disciplineBuilderDate) disciplineBuilderDate = m.dateString;
+        if (tempStreak >= 14 && !momentumEngineDate) momentumEngineDate = m.dateString;
+        if (tempStreak >= 30 && !relentlessDate) relentlessDate = m.dateString;
+        if (tempStreak >= 100 && !unstoppableDate) unstoppableDate = m.dateString;
+      } else {
+        tempStreak = 0;
+      }
+    }
+
+    const achievements = [
+      {
+        id: 'first_step',
+        title: 'First Step',
+        desc: 'Complete your first DDSCC day.',
+        unlocked: totalActiveDays >= 1,
+        unlockDate: firstStepDate,
+        icon: '🎯',
+      },
+      {
+        id: 'consistency_starter',
+        title: 'Consistency Starter',
+        desc: 'Achieve a 3-day consistency streak.',
+        unlocked: (user.longestStreak || 0) >= 3,
+        unlockDate: consistencyStarterDate,
+        icon: '🔥',
+      },
+      {
+        id: 'discipline_builder',
+        title: 'Discipline Builder',
+        desc: 'Achieve a 7-day consistency streak.',
+        unlocked: (user.longestStreak || 0) >= 7,
+        unlockDate: disciplineBuilderDate,
+        icon: '🛡️',
+      },
+      {
+        id: 'momentum_engine',
+        title: 'Momentum Engine',
+        desc: 'Achieve a 14-day consistency streak.',
+        unlocked: (user.longestStreak || 0) >= 14,
+        unlockDate: momentumEngineDate,
+        icon: '⚡',
+      },
+      {
+        id: 'relentless',
+        title: 'Relentless',
+        desc: 'Achieve a 30-day consistency streak.',
+        unlocked: (user.longestStreak || 0) >= 30,
+        unlockDate: relentlessDate,
+        icon: '💎',
+      },
+      {
+        id: 'unstoppable',
+        title: 'Unstoppable',
+        desc: 'Achieve an elite 100-day consistency streak.',
+        unlocked: (user.longestStreak || 0) >= 100,
+        unlockDate: unstoppableDate,
+        icon: '👑',
+      },
+    ];
+
+    // 2. Scan personal best parameters
+    let highestScore = 0;
+    let highestScoreDate: string | null = null;
+    let mostDsaSolved = 0;
+    let mostDsaSolvedDate: string | null = null;
+    let mostSkillsCompleted = 0;
+    let mostSkillsCompletedDate: string | null = null;
+
+    for (const m of allMissions) {
+      if (m.isCompleted && !m.isMissed) {
+        const score = m.ddsccScore || 0;
+        if (score > highestScore) {
+          highestScore = score;
+          highestScoreDate = m.dateString;
+        }
+        const dsaSolved = Number(m.eodActuals?.dsa?.total || 0);
+        if (dsaSolved > mostDsaSolved) {
+          mostDsaSolved = dsaSolved;
+          mostDsaSolvedDate = m.dateString;
+        }
+        const skillsCount = (m.eodActuals?.skills || []).length;
+        if (skillsCount > mostSkillsCompleted) {
+          mostSkillsCompleted = skillsCount;
+          mostSkillsCompletedDate = m.dateString;
+        }
+      }
+    }
+
+    const personalBests = {
+      bestStreak: {
+        value: user.longestStreak || 0,
+        label: 'Best Streak',
+        badge: '🔥 Streak Master',
+      },
+      highestScore: {
+        value: highestScore,
+        date: highestScoreDate,
+        label: 'Highest DDSCC Score',
+        badge: '🏆 Elite Discipline',
+      },
+      mostDsaSolved: {
+        value: mostDsaSolved,
+        date: mostDsaSolvedDate,
+        label: 'Most DSA Solved in a Day',
+        badge: '💻 Algorithmic Beast',
+      },
+      mostSkillsCompleted: {
+        value: mostSkillsCompleted,
+        date: mostSkillsCompletedDate,
+        label: 'Most Skills Practiced in a Day',
+        badge: '🛠️ Multi-Stack Dev',
+      },
+    };
+
+    // 3. Compile dynamic journey progression chronological timeline
+    const journeyTimeline: any[] = [];
+    journeyTimeline.push({
+      date: new Date(user.createdAt).toISOString().split('T')[0],
+      title: 'Joined DDSCC',
+      desc: 'Sasi entered the Placement Preparation Covenant.',
+      type: 'system',
+      icon: '🚀',
+    });
+
+    if (firstStepDate) {
+      journeyTimeline.push({
+        date: firstStepDate,
+        title: 'Completed First Day',
+        desc: 'Successfully locked in the first placement covenant.',
+        type: 'milestone',
+        icon: '🎯',
+      });
+    }
+    if (consistencyStarterDate) {
+      journeyTimeline.push({
+        date: consistencyStarterDate,
+        title: 'Consistency Starter Unlocked',
+        desc: 'Forged a 3-day continuous placement streak.',
+        type: 'streak',
+        icon: '🔥',
+      });
+    }
+    if (disciplineBuilderDate) {
+      journeyTimeline.push({
+        date: disciplineBuilderDate,
+        title: 'Discipline Builder Unlocked',
+        desc: 'Solidified a 7-day continuous placement streak.',
+        type: 'streak',
+        icon: '🛡️',
+      });
+    }
+    if (momentumEngineDate) {
+      journeyTimeline.push({
+        date: momentumEngineDate,
+        title: 'Momentum Engine Unlocked',
+        desc: 'Accelerated past 14 days of unwavering commitment.',
+        type: 'streak',
+        icon: '⚡',
+      });
+    }
+    if (relentlessDate) {
+      journeyTimeline.push({
+        date: relentlessDate,
+        title: 'Relentless Unlocked',
+        desc: 'Crossed the 30-day covenant milestone. Beast mode.',
+        type: 'streak',
+        icon: '💎',
+      });
+    }
+    if (unstoppableDate) {
+      journeyTimeline.push({
+        date: unstoppableDate,
+        title: 'Unstoppable Unlocked',
+        desc: 'Crossed the elite 100-day consistency threshold.',
+        type: 'streak',
+        icon: '👑',
+      });
+    }
+    if (highestScore > 0 && highestScoreDate) {
+      journeyTimeline.push({
+        date: highestScoreDate,
+        title: 'Highest Score Achieved',
+        desc: `Registered personal highest DDSCC Score of ${highestScore}%!`,
+        type: 'record',
+        icon: '🏆',
+      });
+    }
+
+    // Sort journey timeline descending by date
+    journeyTimeline.sort((a, b) => b.date.localeCompare(a.date));
+
+    // 4. Compile Weekly Reflections from live history analytics
+    const thisWeekMissions = allMissions.slice(-7).filter(m => m.isCompleted && !m.isMissed);
+    const thisWeekAvg = thisWeekMissions.length > 0
+      ? Math.round(thisWeekMissions.reduce((sum, m) => sum + (m.ddsccScore || 0), 0) / thisWeekMissions.length)
+      : 0;
+
+    let thisWeekBestScore = 0;
+    let thisWeekBestDate: string | null = null;
+    let thisWeekDsaSum = 0, thisWeekDevSum = 0, thisWeekSkillsSum = 0, thisWeekCoreSum = 0, thisWeekCommSum = 0, thisWeekAptSum = 0;
+
+    for (const m of thisWeekMissions) {
+      const score = m.ddsccScore || 0;
+      if (score > thisWeekBestScore) {
+        thisWeekBestScore = score;
+        thisWeekBestDate = m.dateString;
+      }
+      const catScores = evaluateCategoryScores(m);
+      thisWeekDsaSum += catScores.dsa;
+      thisWeekDevSum += catScores.dev;
+      thisWeekSkillsSum += catScores.skills;
+      thisWeekCoreSum += catScores.core;
+      thisWeekCommSum += catScores.comm;
+      thisWeekAptSum += catScores.apt;
+    }
+
+    const thisWeekCount = thisWeekMissions.length;
+    const thisWeekCatAverages = [
+      { name: 'DSA Algorithm', score: thisWeekCount > 0 ? thisWeekDsaSum / thisWeekCount : 0 },
+      { name: 'Project Building', score: thisWeekCount > 0 ? thisWeekDevSum / thisWeekCount : 0 },
+      { name: 'Target Skills', score: thisWeekCount > 0 ? thisWeekSkillsSum / thisWeekCount : 0 },
+      { name: 'Core Computer Science', score: thisWeekCount > 0 ? thisWeekCoreSum / thisWeekCount : 0 },
+      { name: 'Mock Communication', score: thisWeekCount > 0 ? thisWeekCommSum / thisWeekCount : 0 },
+      { name: 'Aptitude Practice', score: thisWeekCount > 0 ? thisWeekAptSum / thisWeekCount : 0 },
+    ];
+
+    thisWeekCatAverages.sort((a, b) => b.score - a.score);
+    const thisWeekStrongest = thisWeekCount > 0 ? thisWeekCatAverages[0].name : 'N/A';
+    const thisWeekWeakest = thisWeekCount > 0 ? thisWeekCatAverages[thisWeekCatAverages.length - 1].name : 'N/A';
+
+    const weeklyReflection = {
+      averageScore: thisWeekAvg,
+      bestDayScore: thisWeekBestScore,
+      bestDayDate: thisWeekBestDate,
+      strongestArea: thisWeekStrongest,
+      weakestArea: thisWeekWeakest,
+      activeDaysThisWeek: thisWeekCount,
+    };
+
+    // 5. Generate data-driven Motivation Slogan
+    let motivationSlogan = "Seize today's morning placement oath to protect your momentum!";
+    const todayStr = getISTDateString(new Date());
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(yesterdayDate.getDate() - 1);
+    const yesterdayStr = getISTDateString(yesterdayDate);
+
+    const todayMission = allMissions.find(m => m.dateString === todayStr);
+    const yesterdayMission = allMissions.find(m => m.dateString === yesterdayStr);
+
+    if (todayMission) {
+      if (todayMission.isCompleted) {
+        if (todayMission.ddsccScore >= 85) {
+          motivationSlogan = "You're becoming harder to stop. Relentless execution, Sasi!";
+        } else if (todayMission.ddsccScore < 60) {
+          motivationSlogan = "Progress begins again tomorrow. Rest, recalibrate, and rise.";
+        } else {
+          motivationSlogan = "Solid day locked in. Momentum is compounding!";
+        }
+      } else {
+        motivationSlogan = "Morning oath sealed. Go focus, do the actual work, and conquer!";
+      }
+    } else {
+      if (yesterdayMission && yesterdayMission.isMissed) {
+        motivationSlogan = "One missed day doesn't define your placement journey. Renew your oath today!";
+      } else if (user.currentStreak > 0) {
+        motivationSlogan = `Protect your ${user.currentStreak}-day consistency streak. Seal today's goals now!`;
+      } else {
+        motivationSlogan = "A brand new day is a clean slate. Set your morning target and conquer!";
+      }
+    }
+
     return NextResponse.json({
       success: true,
       stats: {
@@ -400,6 +689,11 @@ export async function GET() {
       categoryAverages,
       insights,
       activityTimeline: slicedTimeline,
+      achievements,
+      personalBests,
+      journeyTimeline,
+      weeklyReflection,
+      motivationSlogan,
     });
   } catch (error) {
     console.error('Analytics aggregation error:', error);
