@@ -41,6 +41,8 @@ export async function GET() {
         isFirstLogin: user.isFirstLogin,
         motivationText: user.motivationText,
         targetRole: user.targetRole,
+        currentStreak: user.currentStreak || 0,
+        longestStreak: user.longestStreak || 0,
       },
     });
   } catch (error) {

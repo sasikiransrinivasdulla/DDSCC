@@ -8,9 +8,10 @@ export function middleware(request: NextRequest) {
   const isDashboard = nextUrl.pathname.startsWith('/dashboard');
   const isOnboarding = nextUrl.pathname.startsWith('/onboarding');
   const isDailyOath = nextUrl.pathname.startsWith('/daily-oath');
+  const isDailyReview = nextUrl.pathname.startsWith('/daily-review');
   const isAuth = nextUrl.pathname.startsWith('/auth');
 
-  if ((isDashboard || isOnboarding || isDailyOath) && !hasSession) {
+  if ((isDashboard || isOnboarding || isDailyOath || isDailyReview) && !hasSession) {
     // Redirect unauthenticated user to the auth page
     const loginUrl = new URL('/auth', request.url);
     return NextResponse.redirect(loginUrl);
@@ -26,5 +27,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth', '/onboarding', '/daily-oath'],
+  matcher: ['/dashboard/:path*', '/auth', '/onboarding', '/daily-oath', '/daily-review'],
 };

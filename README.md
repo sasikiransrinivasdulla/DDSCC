@@ -110,7 +110,39 @@ DDSCC employs a premium, security-conscious authentication system:
 
 ---
 
+## 🌙 EOD Reflection & Weighted DDSCC Scoring Engine
+
+DDSCC implements a complete, personal daily accountability workflow:
+
+- **EOD Reflection Wizard (`/daily-review`)**: Intercepts return visits to `/dashboard` in the evening or via active commitment cards, guiding users through an 8-step glassmorphic wizard:
+  1. *Mindset Reflection*: "Let's reflect on today. Progress isn't perfection. Honesty matters."
+  2. *DSA Actuals*: Inputs actual Easy, Medium, Hard problems completed. Computes completion ratios vs target commitments.
+  3. *Development Actuals*: Detailed logs of active coding (Textarea), GitHub commits pushed, technologies explored, and a 1-5 satisfaction index.
+  4. *Skills Checklist*: Check off target skills practiced during the day.
+  5. *CS Fundamentals Sliders*: Slides actual effort (`0% -> 100%`) against targets.
+  6. *Communication actuals*: Proportional score calculations (80% tasks completion, 20% confidence levels 1-5).
+  7. *Aptitude actuals*: Questions completed vs planned counts.
+  8. *Pride & Learn Seal*: Log pride ratings (1-5) and technical takeaways.
+- **Weighted Scoring Engine**: Calculates absolute daily discipline metrics based on fixed ratios:
+  - **DSA**: `30%` (prorated by planned vs completed problems)
+  - **Development**: `20%` (`(Satisfaction / 5) * 50 + 25 (if pushed) + 25 (if explored)`)
+  - **Skills**: `15%` (completed vs planned tags list)
+  - **CS Fundamentals**: `15%` (average actual vs planned slider intensities)
+  - **Communication**: `10%` (`(completed / planned) * 80 + (confidence / 5) * 20`)
+  - **Aptitude**: `10%` (actual vs planned questions)
+  - *Bias avoidance*: Any component with 0 target in the morning auto-credits to `100%` of its respective component weight.
+- **Discipline Performance Badges**: Displays dynamic indices matching achievement score ratios:
+  - `🟢 Beast Mode`: **90 - 100** (*"You're becoming harder to stop."*)
+  - `🟢 Strong Day`: **75 - 89** (*"You're becoming harder to stop."*)
+  - `🟡 Consistent`: **60 - 74** (*"Consistency compiles progress."*)
+  - `🟠 Could Be Better`: **40 - 59** (*"Tomorrow is another chance to show up."*)
+  - `🔴 Show Up Tomorrow`: **< 40** (*"Consistency resets. Growth doesn't."*)
+- **Streaks & Calendar Synchronization**: Active synchronizer endpoints `/api/sync-streaks` sweep registration dates to yesterday. Any days where users did not commit to an oath are auto-inserted as missed records (`{ isMissed: true, ddsccScore: 0 }`), decaying their streak counter to `0`. Chronological scans trace consecutive days to calculate both active `currentStreak` and historical maximum `longestStreak` counters on MongoDB.
+
+---
+
 ## Developer / Connect With Me
 
 GitHub:
 https://github.com/sasikiransrinivasdulla
+

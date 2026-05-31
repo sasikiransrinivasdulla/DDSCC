@@ -13,6 +13,18 @@ const DailyMissionSchema = new Schema(
       required: true,
       index: true,
     },
+    isCompleted: {
+      type: Boolean,
+      default: false,
+    },
+    isMissed: {
+      type: Boolean,
+      default: false,
+    },
+    ddsccScore: {
+      type: Number,
+      default: 0, // Out of 100
+    },
     dsaTargets: {
       easy: { type: Number, default: 0 },
       medium: { type: Number, default: 0 },
@@ -34,7 +46,7 @@ const DailyMissionSchema = new Schema(
     coreSubjects: [
       {
         subject: { type: String, required: true },
-        plannedEffort: { type: Number, required: true }, // Slider values 0 - 100
+        plannedEffort: { type: Number, required: true }, // Slider planned effort 0 - 100
       },
     ],
     communication: {
@@ -42,11 +54,57 @@ const DailyMissionSchema = new Schema(
         type: [String],
         default: [],
       },
-      confidenceRating: { type: Number, default: 3 }, // Rating 1 to 5
+      confidenceRating: { type: Number, default: 3 }, // Planned confidence level (1-5)
     },
     aptitude: {
       topicName: { type: String, default: '' },
       plannedQuestions: { type: Number, default: 0 },
+    },
+
+    // EOD ACTUAL REFLECTION DATA
+    eodActuals: {
+      dsa: {
+        easy: { type: Number, default: 0 },
+        medium: { type: Number, default: 0 },
+        hard: { type: Number, default: 0 },
+        total: { type: Number, default: 0 },
+      },
+      development: {
+        projectName: { type: String, default: '' },
+        projectDesc: { type: String, default: '' },
+        githubPushed: { type: Boolean, default: false },
+        exploreNew: { type: Boolean, default: false },
+        satisfactionRating: { type: Number, default: 3 }, // 1 to 5
+      },
+      skills: {
+        type: [String], // Array of completed skills
+        default: [],
+      },
+      coreSubjects: [
+        {
+          subject: { type: String, required: true },
+          actualEffort: { type: Number, default: 0 }, // Slider actual effort 0 - 100
+        },
+      ],
+      communication: {
+        options: {
+          type: [String], // Completed communication targets
+          default: [],
+        },
+        confidenceRating: { type: Number, default: 3 }, // Actual confidence rating (1-5)
+      },
+      aptitude: {
+        topicName: { type: String, default: '' },
+        actualQuestions: { type: Number, default: 0 },
+      },
+      prideRating: {
+        type: Number,
+        default: 3, // Rating 1 to 5
+      },
+      reflectionNote: {
+        type: String,
+        default: '',
+      },
     },
   },
   {
@@ -54,7 +112,7 @@ const DailyMissionSchema = new Schema(
   }
 );
 
-// Compound unique index ensuring only one mission exists per day per user
+// Enforce single-mission constraints per day per user
 DailyMissionSchema.index({ userId: 1, dateString: 1 }, { unique: true });
 
 const DailyMission = mongoose.models.DailyMission || mongoose.model('DailyMission', DailyMissionSchema);

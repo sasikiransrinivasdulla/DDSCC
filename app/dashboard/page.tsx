@@ -24,7 +24,8 @@ import {
   Cpu,
   Database,
   MessageSquare,
-  ChevronRight
+  ChevronRight,
+  ArrowRight
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { DisciplineKey } from '@/types';
@@ -99,13 +100,19 @@ export default function DashboardPage() {
     Object.values(scores).reduce((a, b) => a + b, 0) / 6
   );
 
+  const getPerformanceBadge = (score: number) => {
+    if (score >= 90) return { label: 'Beast Mode', color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20 shadow-emerald-950/20', dot: 'bg-emerald-400', desc: "You're becoming harder to stop." };
+    if (score >= 75) return { label: 'Strong Day', color: 'text-green-400 bg-green-500/10 border-green-500/20 shadow-green-950/20', dot: 'bg-green-400', desc: "You're becoming harder to stop." };
+    if (score >= 60) return { label: 'Consistent', color: 'text-amber-400 bg-amber-500/10 border-amber-500/20 shadow-amber-950/20', dot: 'bg-amber-400', desc: "Consistency compiles progress." };
+    if (score >= 40) return { label: 'Could Be Better', color: 'text-orange-400 bg-orange-500/10 border-orange-500/20 shadow-orange-950/20', dot: 'bg-orange-400', desc: "Tomorrow is another chance to show up." };
+    return { label: 'Show Up Tomorrow', color: 'text-red-400 bg-red-500/10 border-red-500/20 shadow-red-950/20', dot: 'bg-red-400', desc: "Consistency resets. Growth doesn't." };
+  };
+
   // Motivational quote rotates depending on progress level
   const getMotivationalQuote = () => {
-    if (profile.dailyOathCompleted) {
-      return "“The battle is won in the quiet hours. Today's commitments are sealed.”";
-    }
-    if (overallScore > 65) {
-      return "“Consistency is compounding. Keep committing, keep refining, keep expanding.”";
+    if (todayMission?.isCompleted) {
+      const badge = getPerformanceBadge(todayMission.ddsccScore);
+      return `“${badge.desc} Today's sealed score: ${todayMission.ddsccScore}%.”`;
     }
     return "“Great programs are written one character at a time. Show up, code, repeat.”";
   };
@@ -234,23 +241,59 @@ export default function DashboardPage() {
           {/* LEFT SECTION (SCORE CARD, STREAK, QUICK FOCUS GRID) */}
           <div className="lg:col-span-8 space-y-8">
             
+            {/* TIME-SEAL NIGHT REFLECTION BANNER OR COMPLETED METRICS */}
+            {todayMission && !todayMission.isCompleted && (
+              <div className="mb-6">
+                <Card className="p-6 bg-card-surface border-primary-accent/30 relative overflow-hidden glow-emerald-sm">
+                  <div className="absolute top-0 left-0 bottom-0 w-[4px] bg-primary-accent" />
+                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div className="space-y-1">
+                      <span className="text-[10px] uppercase font-extrabold tracking-widest text-primary-accent block">
+                        Discipline Seal Needed
+                      </span>
+                      <h3 className="text-base font-black text-white uppercase tracking-wider font-heading">
+                        Did you actually show up today?
+                      </h3>
+                      <p className="text-xs text-muted-text max-w-xl leading-relaxed">
+                        Morning commitments are registered. Seal your EOD actual accomplishments honestly to calculate today&apos;s score and protect your streak.
+                      </p>
+                    </div>
+                    <Button 
+                      variant="primary" 
+                      className="shrink-0 text-[10px] py-3.5 px-6 uppercase font-extrabold tracking-widest font-heading animate-pulse"
+                      onClick={() => router.push('/daily-review')}
+                    >
+                      Begin Night Reflection <ArrowRight className="w-4 h-4 ml-1.5" />
+                    </Button>
+                  </div>
+                </Card>
+              </div>
+            )}
+
             {/* STATS HEADERS (CIRCULAR PROGRESS & STREAK DISPLAY) */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               
               {/* TODAY'S SCORE CIRCULAR RING CARD */}
-              <Card glowEffect className="flex items-center justify-between p-6">
+              <Card glowEffect={todayMission?.isCompleted} className="flex items-center justify-between p-6">
                 <div className="flex flex-col">
                   <span className="text-xs uppercase font-extrabold tracking-widest text-muted-text">
-                    Overall Prep Score
+                    Today&apos;s DDSCC Score
                   </span>
-                  <span className="text-2xl font-black text-white mt-1 font-heading">
-                    Placement Capacity
+                  <span className="text-xl font-black text-white mt-1 font-heading uppercase tracking-wide">
+                    {todayMission?.isCompleted ? getPerformanceBadge(todayMission.ddsccScore).label : 'Pending Seal'}
                   </span>
-                  <p className="text-sm text-muted-text mt-1.5 max-w-[180px] leading-relaxed">
-                    Recalculates instantly as focus metrics are checked.
+                  <p className="text-xs text-muted-text mt-1.5 max-w-[180px] leading-relaxed">
+                    {todayMission?.isCompleted 
+                      ? "Weighted score finalized for today. Excellent discipline!" 
+                      : "Seal today's EOD reflection to generate your discipline index."}
                   </p>
                 </div>
-                <ProgressCircle value={overallScore} size={110} strokeWidth={8} textSub="Readiness" />
+                <ProgressCircle 
+                  value={todayMission?.isCompleted ? todayMission.ddsccScore : 0} 
+                  size={110} 
+                  strokeWidth={8} 
+                  textSub="DDSCC" 
+                />
               </Card>
 
               {/* STREAK CARD */}
@@ -261,7 +304,7 @@ export default function DashboardPage() {
                       Discipline Streak
                     </span>
                     <span className="text-2xl font-black text-white mt-1 font-heading">
-                      Consistency Compounding
+                      Consistency Flame
                     </span>
                   </div>
                   <div className="w-10 h-10 rounded-xl bg-orange-500/10 border border-orange-500/20 flex items-center justify-center text-orange-400">
@@ -271,16 +314,16 @@ export default function DashboardPage() {
 
                 <div className="mt-4 flex items-baseline gap-2">
                   <span className="text-4xl font-black text-white font-heading">
-                    🔥 {profile.streakDays}
+                    🔥 {profile.streakDays} Days
                   </span>
                   <span className="text-sm font-semibold text-muted-text">
-                    Consecutive Days
+                    Active streak
                   </span>
                 </div>
 
-                <div className="mt-3 text-xs text-muted-text/80 leading-relaxed border-t border-border-subtle/40 pt-3 flex items-center gap-1.5">
+                <div className="mt-3 text-[10px] text-muted-text/80 leading-relaxed border-t border-border-subtle/40 pt-3 flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                  <span>Maintain the daily oath to protect this streak from decaying.</span>
+                  <span>Missed days auto-decay your active streak to zero. Stay persistent!</span>
                 </div>
               </Card>
 
@@ -454,10 +497,10 @@ export default function DashboardPage() {
               <Card className="p-6 bg-card-surface border-border-subtle relative overflow-hidden glow-emerald-sm">
                 <div className="absolute top-0 left-0 right-0 h-[2px] bg-primary-accent/30" />
                 <span className="text-xs uppercase font-extrabold tracking-widest text-primary-accent font-heading">
-                  Today&apos;s Intentions
+                  {todayMission.isCompleted ? "Today's Outcome" : "Today's Intentions"}
                 </span>
                 <h4 className="text-base font-black text-white uppercase tracking-wider font-heading mt-1 mb-4">
-                  Morning Commitment
+                  {todayMission.isCompleted ? "Night Reflection" : "Morning Commitment"}
                 </h4>
 
                 <div className="space-y-4">
@@ -465,31 +508,49 @@ export default function DashboardPage() {
                   <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-1.5">
                     <div className="flex justify-between items-center text-xs font-bold text-white">
                       <span>DSA Problems</span>
-                      <span className="text-primary-accent font-extrabold">{todayMission.dsaTargets?.total || 0} Target</span>
+                      <span className="text-primary-accent font-extrabold">
+                        {todayMission.isCompleted 
+                          ? `${todayMission.eodActuals?.dsa?.total || 0} / ${todayMission.dsaTargets?.total || 0} Solved` 
+                          : `${todayMission.dsaTargets?.total || 0} Target`}
+                      </span>
                     </div>
                     <div className="flex gap-2 text-[10px] text-muted-text uppercase font-bold">
-                      <span>Easy: {todayMission.dsaTargets?.easy || 0}</span>
+                      <span>Easy: {todayMission.isCompleted ? todayMission.eodActuals?.dsa?.easy || 0 : todayMission.dsaTargets?.easy || 0}</span>
                       <span>•</span>
-                      <span>Medium: {todayMission.dsaTargets?.medium || 0}</span>
+                      <span>Medium: {todayMission.isCompleted ? todayMission.eodActuals?.dsa?.medium || 0 : todayMission.dsaTargets?.medium || 0}</span>
                       <span>•</span>
-                      <span>Hard: {todayMission.dsaTargets?.hard || 0}</span>
+                      <span>Hard: {todayMission.isCompleted ? todayMission.eodActuals?.dsa?.hard || 0 : todayMission.dsaTargets?.hard || 0}</span>
                     </div>
                   </div>
 
                   {/* Dev targets info */}
-                  {todayMission.development?.isBuilding ? (
+                  {todayMission.development?.isBuilding || todayMission.eodActuals?.development?.projectName ? (
                     <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-1.5">
                       <div className="flex justify-between items-center text-xs font-bold text-white">
-                        <span>Active Building: {todayMission.development.projectName}</span>
-                        <span className="text-primary-accent font-extrabold">{todayMission.development.plannedHours}h Plan</span>
+                        <span>Active Building: {todayMission.isCompleted ? todayMission.eodActuals.development.projectName : todayMission.development.projectName}</span>
+                        <span className="text-primary-accent font-extrabold">
+                          {todayMission.isCompleted 
+                            ? `Rating: ${todayMission.eodActuals.development.satisfactionRating}/5` 
+                            : `${todayMission.development.plannedHours}h Plan`}
+                        </span>
                       </div>
                       <p className="text-[11px] text-muted-text leading-relaxed">
-                        {todayMission.development.projectDesc}
+                        {todayMission.isCompleted ? todayMission.eodActuals.development.projectDesc : todayMission.development.projectDesc}
                       </p>
                       <div className="flex gap-2 text-[10px] text-muted-text font-bold uppercase pt-1">
-                        {todayMission.development.willPushGithub && <span>Pushing Commits</span>}
-                        {todayMission.development.willPushGithub && todayMission.development.exploreNew && <span>•</span>}
-                        {todayMission.development.exploreNew && <span>Exploring Tech</span>}
+                        {todayMission.isCompleted ? (
+                          <>
+                            {todayMission.eodActuals.development.githubPushed && <span>GitHub Pushed</span>}
+                            {todayMission.eodActuals.development.githubPushed && todayMission.eodActuals.development.exploreNew && <span>•</span>}
+                            {todayMission.eodActuals.development.exploreNew && <span>New Tech</span>}
+                          </>
+                        ) : (
+                          <>
+                            {todayMission.development.willPushGithub && <span>Pushing Commits</span>}
+                            {todayMission.development.willPushGithub && todayMission.development.exploreNew && <span>•</span>}
+                            {todayMission.development.exploreNew && <span>Exploring Tech</span>}
+                          </>
+                        )}
                       </div>
                     </div>
                   ) : (
@@ -501,13 +562,27 @@ export default function DashboardPage() {
                   {/* Skills tags list */}
                   {todayMission.skills?.length > 0 && (
                     <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-2">
-                      <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider block">Target Skills</span>
+                      <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider block">
+                        {todayMission.isCompleted ? "Completed Skills" : "Target Skills"}
+                      </span>
                       <div className="flex flex-wrap gap-1.5">
-                        {todayMission.skills.map((skill: string, i: number) => (
-                          <span key={i} className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary-accent/5 border border-primary-accent/15 text-white">
-                            {skill}
-                          </span>
-                        ))}
+                        {todayMission.skills.map((skill: string, i: number) => {
+                          const completed = todayMission.isCompleted ? todayMission.eodActuals?.skills?.includes(skill) : false;
+                          return (
+                            <span 
+                              key={i} 
+                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                                todayMission.isCompleted 
+                                  ? completed 
+                                    ? 'bg-primary-accent/10 border-primary-accent text-white font-extrabold' 
+                                    : 'bg-[#050505] border-border-subtle/40 text-muted-text line-through opacity-50'
+                                  : 'bg-primary-accent/5 border-primary-accent/15 text-white'
+                              }`}
+                            >
+                              {skill}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -517,12 +592,21 @@ export default function DashboardPage() {
                     <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-2">
                       <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider block">CS Fundamentals</span>
                       <div className="space-y-1.5">
-                        {todayMission.coreSubjects.map((sub: any, i: number) => (
-                          <div key={i} className="flex justify-between items-center text-[10px] font-bold">
-                            <span className="text-white">{sub.subject}</span>
-                            <span className="text-primary-accent">{sub.plannedEffort}% Intensity</span>
-                          </div>
-                        ))}
+                        {todayMission.coreSubjects.map((sub: any, i: number) => {
+                          const matchingActual = todayMission.isCompleted 
+                            ? todayMission.eodActuals?.coreSubjects?.find((c: any) => c.subject === sub.subject)
+                            : null;
+                          return (
+                            <div key={i} className="flex justify-between items-center text-[10px] font-bold">
+                              <span className="text-white">{sub.subject}</span>
+                              <span className="text-primary-accent">
+                                {todayMission.isCompleted 
+                                  ? `Actual: ${matchingActual ? matchingActual.actualEffort : 0}% / Target: ${sub.plannedEffort}%` 
+                                  : `${sub.plannedEffort}% Intensity`}
+                              </span>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -533,29 +617,73 @@ export default function DashboardPage() {
                       <div className="flex justify-between items-center">
                         <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider">Communication Focus</span>
                         <span className="text-[10px] font-black text-primary-accent bg-primary-accent/5 border border-primary-accent/10 px-1.5 py-0.5 rounded">
-                          Level {todayMission.communication.confidenceRating}/5
+                          Confidence: {todayMission.isCompleted ? todayMission.eodActuals?.communication?.confidenceRating : todayMission.communication.confidenceRating}/5
                         </span>
                       </div>
                       <div className="flex flex-wrap gap-1.5">
-                        {todayMission.communication.options.map((opt: string, i: number) => (
-                          <span key={i} className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-secondary-surface text-muted-text">
-                            {opt}
-                          </span>
-                        ))}
+                        {todayMission.communication.options.map((opt: string, i: number) => {
+                          const completed = todayMission.isCompleted ? todayMission.eodActuals?.communication?.options?.includes(opt) : false;
+                          return (
+                            <span 
+                              key={i} 
+                              className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                                todayMission.isCompleted 
+                                  ? completed 
+                                    ? 'bg-primary-accent/10 border-primary-accent/20 text-white font-extrabold' 
+                                    : 'bg-secondary-surface text-muted-text line-through opacity-50'
+                                  : 'bg-secondary-surface text-muted-text'
+                              }`}
+                            >
+                              {opt}
+                            </span>
+                          );
+                        })}
                       </div>
                     </div>
                   )}
 
                   {/* Aptitude focus */}
-                  {todayMission.aptitude?.plannedQuestions > 0 && (
+                  {(todayMission.aptitude?.plannedQuestions > 0 || todayMission.eodActuals?.aptitude?.actualQuestions > 0) && (
                     <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-1">
                       <div className="flex justify-between items-center text-xs font-bold text-white">
-                        <span>Aptitude: {todayMission.aptitude.topicName}</span>
-                        <span className="text-primary-accent font-extrabold">{todayMission.aptitude.plannedQuestions} Qs</span>
+                        <span>Aptitude: {todayMission.isCompleted ? todayMission.eodActuals.aptitude.topicName : todayMission.aptitude.topicName}</span>
+                        <span className="text-primary-accent font-extrabold">
+                          {todayMission.isCompleted 
+                            ? `${todayMission.eodActuals.aptitude.actualQuestions} / ${todayMission.aptitude.plannedQuestions} Solved` 
+                            : `${todayMission.aptitude.plannedQuestions} Qs`}
+                        </span>
                       </div>
                     </div>
                   )}
 
+                </div>
+              </Card>
+            )}
+
+            {/* DAILY REFLECTION SUMMARY TAKEAWAYS */}
+            {todayMission && todayMission.isCompleted && (
+              <Card className="p-6 bg-card-surface border-border-subtle relative overflow-hidden">
+                <span className="text-[10px] uppercase font-extrabold tracking-widest text-primary-accent font-heading block">
+                  Today&apos;s Seal Takeaway
+                </span>
+                <h4 className="text-base font-black text-white uppercase tracking-wider font-heading mt-1 mb-3">
+                  Reflection Takeaway
+                </h4>
+
+                <div className="space-y-3.5">
+                  <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 flex justify-between items-center text-xs">
+                    <span className="font-semibold text-muted-text">Effort Pride Rating</span>
+                    <span className="text-primary-accent font-extrabold font-heading">⭐ {todayMission.eodActuals?.prideRating || 3} of 5</span>
+                  </div>
+
+                  {todayMission.eodActuals?.reflectionNote && (
+                    <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-1">
+                      <span className="text-[9px] uppercase font-bold text-muted-text tracking-wider">Lessons Logged</span>
+                      <p className="text-xs italic text-white leading-relaxed">
+                        &ldquo;{todayMission.eodActuals.reflectionNote}&rdquo;
+                      </p>
+                    </div>
+                  )}
                 </div>
               </Card>
             )}
