@@ -45,6 +45,7 @@ export default function DashboardPage() {
   const [analyticsLoading, setAnalyticsLoading] = React.useState(true);
   const [isMounted, setIsMounted] = React.useState(false);
   const [timeLeft, setTimeLeft] = React.useState('');
+  const [hoveredDay, setHoveredDay] = React.useState<any>(null);
 
   React.useEffect(() => {
     const updateTimer = () => {
@@ -197,22 +198,22 @@ export default function DashboardPage() {
       
       if (score >= 0) {
         if (score === 0) {
-          colorClass = 'bg-[#131313] border border-white/5';
+          colorClass = 'bg-[#131313] border border-white/5 hover:border-white/20';
           scoreLabel = '0% Score';
         } else if (score > 0 && score <= 20) {
-          colorClass = 'bg-[#131313] border border-white/5';
+          colorClass = 'bg-[#131313] border border-white/5 hover:border-white/20';
           scoreLabel = `Score: ${score}%`;
         } else if (score > 20 && score <= 40) {
-          colorClass = 'bg-emerald-500/10 border border-emerald-500/15 text-emerald-400';
+          colorClass = 'bg-emerald-500/10 border border-emerald-500/15 text-emerald-400 hover:border-emerald-500/35 hover:bg-emerald-500/15';
           scoreLabel = `Score: ${score}%`;
         } else if (score > 40 && score <= 60) {
-          colorClass = 'bg-emerald-500/30 border border-emerald-500/25';
+          colorClass = 'bg-emerald-500/30 border border-emerald-500/25 hover:border-emerald-500/45 hover:bg-emerald-500/35';
           scoreLabel = `Score: ${score}%`;
         } else if (score > 60 && score <= 80) {
-          colorClass = 'bg-emerald-500/55 border border-emerald-500/40';
+          colorClass = 'bg-emerald-500/55 border border-emerald-500/40 hover:border-emerald-500/70 hover:bg-emerald-500/60';
           scoreLabel = `Score: ${score}%`;
         } else if (score > 80 && score <= 100) {
-          colorClass = 'bg-primary-accent border border-primary-accent/80 glow-emerald-sm';
+          colorClass = 'bg-primary-accent border border-primary-accent/80 shadow-[0_0_8px_rgba(16,185,129,0.15)] hover:shadow-[0_0_12px_rgba(16,185,129,0.45)] hover:border-white';
           scoreLabel = `Score: ${score}% (Elite)`;
         }
       }
@@ -223,9 +224,11 @@ export default function DashboardPage() {
       return (
         <motion.div 
           key={dateStr}
-          whileHover={{ scale: 1.2, zIndex: 10 }}
+          whileHover={{ scale: 1.25, zIndex: 10 }}
           className={`w-5 h-5 rounded transition-all duration-300 cursor-pointer ${colorClass}`}
-          title={`${displayDate}: ${scoreLabel}`}
+          onMouseEnter={() => setHoveredDay({ date: displayDate, scoreText: scoreLabel })}
+          onMouseLeave={() => setHoveredDay(null)}
+          onTouchStart={() => setHoveredDay({ date: displayDate, scoreText: scoreLabel })}
         />
       );
     });
@@ -276,10 +279,10 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           
           {/* LEFT SECTION (SCORE CARD, STREAK, QUICK FOCUS GRID) */}
-          <div className="lg:col-span-8 space-y-8">
+          <div className="lg:col-span-8 space-y-6">
             
             {/* TIME-SEAL NIGHT REFLECTION BANNER OR COMPLETED METRICS */}
             {todayMission && !todayMission.isCompleted && (
@@ -309,111 +312,115 @@ export default function DashboardPage() {
                 </Card>
               </div>
             )}
-            
-            {/* STATS HEADERS (CIRCULAR PROGRESS & STREAK DISPLAY) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {/* STATS HEADERS (CIRCULAR PROGRESS & STREAK DISPLAY) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               
               {/* TODAY'S SCORE CIRCULAR RING CARD */}
-              <Card glowEffect={todayMission?.isCompleted} className="flex items-center justify-between p-5 min-h-[148px]">
+              <Card glowEffect={todayMission?.isCompleted} className="flex items-center justify-between p-4 min-h-[112px] bg-card-surface border-border-subtle hover:border-primary-accent/15 transition-all duration-300">
                 <div className="flex flex-col min-w-0 flex-1">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-muted-text">
+                  <span className="text-[9px] uppercase font-extrabold tracking-widest text-muted-text">
                     Today&apos;s Score
                   </span>
-                  <span className="text-sm font-black text-white mt-1 font-heading uppercase tracking-wide truncate">
+                  <span className="text-xs font-black text-white mt-0.5 font-heading uppercase tracking-wider truncate">
                     {todayMission?.isCompleted ? getPerformanceBadge(todayMission.ddsccScore).label : 'Pending Seal'}
                   </span>
-                  <p className="text-[10px] text-muted-text mt-1.5 leading-relaxed pr-2">
-                    {todayMission?.isCompleted 
-                      ? "Weighted score finalized. Excellent discipline!" 
-                      : "Seal today's EOD reflection to generate score."}
-                  </p>
+                  <div className="mt-2 flex items-center">
+                    <span className={`text-[8px] uppercase font-extrabold px-1.5 py-0.5 rounded border ${
+                      todayMission 
+                        ? todayMission.isCompleted 
+                          ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' 
+                          : 'bg-amber-500/10 border-amber-500/25 text-amber-400'
+                        : 'bg-red-500/10 border-red-500/25 text-red-400'
+                    }`}>
+                      Status: {todayMission ? (todayMission.isCompleted ? 'Completed' : 'In Progress') : 'Not Started'}
+                    </span>
+                  </div>
                 </div>
                 <ProgressCircle 
                   value={todayMission?.isCompleted ? todayMission.ddsccScore : 0} 
-                  size={80} 
-                  strokeWidth={6} 
+                  size={64} 
+                  strokeWidth={5} 
                   textSub="DDSCC" 
                 />
               </Card>
 
               {/* CURRENT STREAK CARD */}
-              <Card className="flex flex-col justify-between p-5 min-h-[148px]">
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-muted-text">
+              <Card className="flex flex-col justify-between p-4 min-h-[112px] bg-card-surface border-border-subtle hover:border-orange-500/10 transition-all duration-300">
+                <div className="flex justify-between items-center w-full">
+                  <span className="text-[9px] uppercase font-extrabold tracking-widest text-muted-text">
                     Discipline Streak
                   </span>
-                  <Flame className="w-4 h-4 text-orange-400" />
+                  <Flame className="w-3.5 h-3.5 text-orange-400" />
                 </div>
-                <div className="mt-2">
-                  <span className="text-2xl font-black text-white font-heading block">
+                <div className="mt-2.5">
+                  <span className="text-xl font-black text-white font-heading block">
                     🔥 {profile.streakDays} Days
                   </span>
-                  <span className="text-[9px] uppercase font-extrabold text-muted-text/80 tracking-wider mt-1 block">
+                  <span className="text-[8px] uppercase font-bold text-muted-text/80 tracking-widest mt-0.5 block">
                     Active Streak
                   </span>
                 </div>
               </Card>
 
               {/* BEST STREAK CARD */}
-              <Card className="flex flex-col justify-between p-5 min-h-[148px]">
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-muted-text">
+              <Card className="flex flex-col justify-between p-4 min-h-[112px] bg-card-surface border-border-subtle hover:border-primary-accent/10 transition-all duration-300">
+                <div className="flex justify-between items-center w-full">
+                  <span className="text-[9px] uppercase font-extrabold tracking-widest text-muted-text">
                     Best Streak
                   </span>
-                  <Award className="w-4 h-4 text-primary-accent" />
+                  <Award className="w-3.5 h-3.5 text-primary-accent" />
                 </div>
-                <div className="mt-2">
-                  <span className="text-2xl font-black text-white font-heading block">
+                <div className="mt-2.5">
+                  <span className="text-xl font-black text-white font-heading block">
                     🏆 {analyticsData?.stats?.longestStreak || 0} Days
                   </span>
-                  <span className="text-[9px] uppercase font-extrabold text-muted-text/80 tracking-wider mt-1 block">
+                  <span className="text-[8px] uppercase font-bold text-muted-text/80 tracking-widest mt-0.5 block">
                     Lifetime Record
                   </span>
                 </div>
               </Card>
 
               {/* TODAY'S STATUS & DEADLINE TIMER CARD */}
-              <Card className="flex flex-col justify-between p-5 min-h-[148px]">
-                <div className="flex justify-between items-start">
-                  <span className="text-[10px] uppercase font-extrabold tracking-widest text-muted-text">
-                    Today&apos;s Status & Deadline
+              <Card className="flex flex-col justify-between p-4 min-h-[112px] bg-card-surface border-border-subtle hover:border-primary-accent/10 transition-all duration-300">
+                <div className="flex justify-between items-center w-full">
+                  <span className="text-[9px] uppercase font-extrabold tracking-widest text-muted-text">
+                    Deadline & Status
                   </span>
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-secondary-surface border border-border-subtle/50 text-[10px]">
-                    {!todayMission ? '🔴' : todayMission.isCompleted ? '🟢' : '🟡'}
-                  </span>
+                  <span className={`w-2 h-2 rounded-full ${
+                    !todayMission ? 'bg-red-500' : todayMission.isCompleted ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.3)]' : 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.3)]'
+                  }`} />
                 </div>
                 <div className="mt-2 min-w-0">
                   {!todayMission ? (
                     <>
-                      <span className="text-xs font-extrabold text-red-500 font-heading block truncate">
-                        No Mission Created
+                      <span className="text-[11px] font-extrabold text-red-500 font-heading block truncate uppercase">
+                        No Mission
                       </span>
-                      <p className="text-[9px] text-muted-text leading-tight mt-1 select-none">
-                        Protect your consistency flame! Seal morning commitments.
+                      <p className="text-[8px] text-muted-text leading-tight mt-0.5 select-none">
+                        Seal commitments now.
                       </p>
                     </>
                   ) : todayMission.isCompleted ? (
                     <>
-                      <span className="text-xs font-extrabold text-emerald-400 font-heading block truncate">
-                        Reflection Sealed ✅
+                      <span className="text-[11px] font-extrabold text-emerald-400 font-heading block truncate uppercase">
+                        Sealed ✅
                       </span>
-                      <p className="text-[9px] text-muted-text leading-tight mt-1 select-none">
-                        Locked at {new Date(todayMission.updatedAt || todayMission.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      <p className="text-[8px] text-muted-text leading-tight mt-0.5 select-none">
+                        Locked: {new Date(todayMission.updatedAt || todayMission.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </p>
                     </>
                   ) : (
                     <>
-                      <span className="text-sm font-black text-white font-heading tracking-wider block font-mono">
+                      <span className="text-xs font-black text-white font-heading tracking-wider block font-mono">
                         ⏳ {timeLeft}
                       </span>
-                      <span className="text-[9px] uppercase font-extrabold text-amber-400 tracking-wider mt-1 block">
+                      <span className="text-[8px] uppercase font-extrabold text-amber-400 tracking-wider mt-0.5 block">
                         Reflection Pending
                       </span>
                     </>
                   )}
                 </div>
               </Card>
-
             </div>
 
             {/* PILLAR CAPACITIES INDICES (DYNAMIC FROM HISTORICAL AVERAGES) */}
@@ -562,7 +569,7 @@ export default function DashboardPage() {
           </div>
 
           {/* RIGHT SECTION (OATH CARD, TASKS CHECKLIST, HISTORY GRID) */}
-          <div className="lg:col-span-4 space-y-8">
+          <div className="lg:col-span-4 space-y-6">
 
             {/* WHY YOU STARTED / PERSONAL ANCHOR */}
             <Card className="p-6 bg-card-surface border-border-subtle/80">
@@ -588,11 +595,11 @@ export default function DashboardPage() {
                   {todayMission.isCompleted ? "Night Reflection" : "Morning Commitment"}
                 </h4>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {/* DSA targets info */}
-                  <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-1.5">
+                  <div className="p-3 bg-[#060606] rounded-xl border border-border-subtle/40 border-l-2 border-l-blue-400 pl-3.5 space-y-1.5 transition-all hover:border-border-subtle">
                     <div className="flex justify-between items-center text-xs font-bold text-white">
-                      <span>DSA Problems</span>
+                      <span className="flex items-center gap-1.5">💻 DSA Problems</span>
                       <span className="text-primary-accent font-extrabold">
                         {todayMission.isCompleted 
                           ? `${todayMission.eodActuals?.dsa?.total || 0} / ${todayMission.dsaTargets?.total || 0} Solved` 
@@ -610,10 +617,10 @@ export default function DashboardPage() {
 
                   {/* Dev targets info */}
                   {todayMission.development?.isBuilding || todayMission.eodActuals?.development?.projectName ? (
-                    <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-1.5">
+                    <div className="p-3 bg-[#060606] rounded-xl border border-border-subtle/40 border-l-2 border-l-purple-400 pl-3.5 space-y-1.5 transition-all hover:border-border-subtle">
                       <div className="flex justify-between items-center text-xs font-bold text-white">
-                        <span>Active Building: {todayMission.isCompleted ? todayMission.eodActuals.development.projectName : todayMission.development.projectName}</span>
-                        <span className="text-primary-accent font-extrabold">
+                        <span className="truncate">🛠️ Dev: {todayMission.isCompleted ? todayMission.eodActuals.development.projectName : todayMission.development.projectName}</span>
+                        <span className="text-primary-accent font-extrabold shrink-0">
                           {todayMission.isCompleted 
                             ? `Rating: ${todayMission.eodActuals.development.satisfactionRating}/5` 
                             : `${todayMission.development.plannedHours}h Plan`}
@@ -622,7 +629,7 @@ export default function DashboardPage() {
                       <p className="text-[11px] text-muted-text leading-relaxed">
                         {todayMission.isCompleted ? todayMission.eodActuals.development.projectDesc : todayMission.development.projectDesc}
                       </p>
-                      <div className="flex gap-2 text-[10px] text-muted-text font-bold uppercase pt-1">
+                      <div className="flex gap-2 text-[10px] text-muted-text font-bold uppercase pt-0.5">
                         {todayMission.isCompleted ? (
                           <>
                             {todayMission.eodActuals.development.githubPushed && <span>GitHub Pushed</span>}
@@ -639,16 +646,16 @@ export default function DashboardPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="p-3 bg-[#050505]/40 rounded-xl border border-border-subtle/30 text-center text-xs italic text-muted-text/50">
+                    <div className="p-3 bg-[#060606]/40 rounded-xl border border-border-subtle/30 border-l-2 border-l-purple-400/40 pl-3.5 text-center text-xs italic text-muted-text/50">
                       No development builds planned for today.
                     </div>
                   )}
 
                   {/* Skills tags list */}
                   {todayMission.skills?.length > 0 && (
-                    <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-2">
+                    <div className="p-3 bg-[#060606] rounded-xl border border-border-subtle/40 border-l-2 border-l-amber-400 pl-3.5 space-y-2 transition-all hover:border-border-subtle">
                       <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider block">
-                        {todayMission.isCompleted ? "Completed Skills" : "Target Skills"}
+                        🚀 {todayMission.isCompleted ? "Completed Skills" : "Target Skills"}
                       </span>
                       <div className="flex flex-wrap gap-1.5">
                         {todayMission.skills.map((skill: string, i: number) => {
@@ -674,8 +681,8 @@ export default function DashboardPage() {
 
                   {/* CS subjects list */}
                   {todayMission.coreSubjects?.length > 0 && (
-                    <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-2">
-                      <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider block">CS Fundamentals</span>
+                    <div className="p-3 bg-[#060606] rounded-xl border border-border-subtle/40 border-l-2 border-l-cyan-400 pl-3.5 space-y-2 transition-all hover:border-border-subtle">
+                      <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider block">📚 CS Fundamentals</span>
                       <div className="space-y-1.5">
                         {todayMission.coreSubjects.map((sub: any, i: number) => {
                           const matchingActual = todayMission.isCompleted 
@@ -698,10 +705,10 @@ export default function DashboardPage() {
 
                   {/* Communication focus */}
                   {todayMission.communication?.options?.length > 0 && (
-                    <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-2">
+                    <div className="p-3 bg-[#060606] rounded-xl border border-border-subtle/40 border-l-2 border-l-pink-400 pl-3.5 space-y-2 transition-all hover:border-border-subtle">
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider">Communication Focus</span>
-                        <span className="text-[10px] font-black text-primary-accent bg-primary-accent/5 border border-primary-accent/10 px-1.5 py-0.5 rounded">
+                        <span className="text-[10px] uppercase font-bold text-muted-text tracking-wider">💬 Communication Focus</span>
+                        <span className="text-[9px] font-black text-primary-accent bg-primary-accent/5 border border-primary-accent/10 px-1.5 py-0.5 rounded">
                           Confidence: {todayMission.isCompleted ? todayMission.eodActuals?.communication?.confidenceRating : todayMission.communication.confidenceRating}/5
                         </span>
                       </div>
@@ -729,9 +736,9 @@ export default function DashboardPage() {
 
                   {/* Aptitude focus */}
                   {(todayMission.aptitude?.plannedQuestions > 0 || todayMission.eodActuals?.aptitude?.actualQuestions > 0) && (
-                    <div className="p-3 bg-[#050505] rounded-xl border border-border-subtle/50 space-y-1">
+                    <div className="p-3 bg-[#060606] rounded-xl border border-border-subtle/40 border-l-2 border-l-indigo-400 pl-3.5 space-y-1 transition-all hover:border-border-subtle">
                       <div className="flex justify-between items-center text-xs font-bold text-white">
-                        <span>Aptitude: {todayMission.isCompleted ? todayMission.eodActuals.aptitude.topicName : todayMission.aptitude.topicName}</span>
+                        <span>🎯 Aptitude: {todayMission.isCompleted ? todayMission.eodActuals.aptitude.topicName : todayMission.aptitude.topicName}</span>
                         <span className="text-primary-accent font-extrabold">
                           {todayMission.isCompleted 
                             ? `${todayMission.eodActuals.aptitude.actualQuestions} / ${todayMission.aptitude.plannedQuestions} Solved` 
@@ -774,23 +781,23 @@ export default function DashboardPage() {
             )}
             
             {/* REAL ACTIVITY TIMELINE */}
-            <Card className="p-6 bg-card-surface border-border-subtle">
-              <CardHeader className="p-0 mb-4">
-                <span className="text-[10px] uppercase font-extrabold tracking-widest text-muted-text">
+            <Card className="p-5 bg-card-surface border-border-subtle">
+              <CardHeader className="p-0 mb-3">
+                <span className="text-[9px] uppercase font-extrabold tracking-widest text-muted-text">
                   Discipline Logs
                 </span>
-                <CardTitle className="text-base font-bold text-white font-heading mt-0.5">
+                <CardTitle className="text-sm font-bold text-white font-heading mt-0.5">
                   Real Activity Timeline
                 </CardTitle>
               </CardHeader>
 
               <CardContent className="p-0">
                 {analyticsLoading ? (
-                  <div className="py-8 text-center text-xs text-muted-text animate-pulse">
+                  <div className="py-6 text-center text-xs text-muted-text animate-pulse">
                     Retrieving activities from placement ledger...
                   </div>
                 ) : analyticsData?.activityTimeline && analyticsData.activityTimeline.length > 0 ? (
-                  <div className="relative border-l border-border-subtle/50 ml-2.5 pl-5 space-y-5 py-1">
+                  <div className="relative border-l border-border-subtle/40 ml-2 pl-4 space-y-3.5 py-0.5">
                     {analyticsData.activityTimeline.map((act: any) => {
                       // Determine badge/color based on type
                       let dotColor = 'bg-muted-text';
@@ -827,15 +834,15 @@ export default function DashboardPage() {
                       return (
                         <div key={act.id} className="relative">
                           {/* Timeline bullet element */}
-                          <span className={`absolute -left-[26px] top-1.5 w-3 h-3 rounded-full border border-black/40 ${dotColor}`} />
+                          <span className={`absolute -left-[22px] top-1.5 w-2 h-2 rounded-full border border-black/40 ${dotColor}`} />
                           
-                          <div className="flex flex-col space-y-1">
+                          <div className="flex flex-col space-y-0.5">
                             <div className="flex items-center justify-between gap-2">
-                              <span className="text-[9px] uppercase font-extrabold tracking-wider text-muted-text font-mono">
+                              <span className="text-[8px] uppercase font-extrabold tracking-widest text-muted-text font-mono">
                                 {formattedDate} • {iconLabel}
                               </span>
                             </div>
-                            <p className="text-[11px] text-primary-text leading-snug">
+                            <p className="text-[10.5px] text-primary-text leading-snug">
                               {act.message}
                             </p>
                           </div>
@@ -844,8 +851,8 @@ export default function DashboardPage() {
                     })}
                   </div>
                 ) : (
-                  <div className="text-center py-8">
-                    <p className="text-[11px] text-muted-text leading-relaxed">
+                  <div className="text-center py-6">
+                    <p className="text-[10px] text-muted-text leading-relaxed">
                       No chronological activities committed to ledger yet. Commit to a daily oath to register logs.
                     </p>
                   </div>
@@ -873,7 +880,20 @@ export default function DashboardPage() {
                   {renderRealHeatmapGrid()}
                 </div>
 
-                <div className="flex items-center justify-between text-[9px] text-muted-text font-bold uppercase tracking-wider mt-4 border-t border-border-subtle/40 pt-3">
+                {/* Dynamic Interactive HUD Overlay */}
+                <div className="text-center py-1.5 h-6 flex items-center justify-center border-t border-border-subtle/30 mt-3 select-none">
+                  {hoveredDay ? (
+                    <span className="text-[10px] text-primary-accent font-extrabold uppercase tracking-widest animate-pulse">
+                      ⚡ {hoveredDay.date} : {hoveredDay.scoreText}
+                    </span>
+                  ) : (
+                    <span className="text-[9px] text-muted-text font-bold uppercase tracking-wider">
+                      Hover cells to inspect Prep ledger
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between text-[9px] text-muted-text font-bold uppercase tracking-wider mt-2 border-t border-border-subtle/30 pt-3">
                   <span>Less Active</span>
                   <div className="flex items-center gap-1">
                     <span className="w-2.5 h-2.5 rounded bg-[#0a0a0a] border border-white/[0.02]" />
