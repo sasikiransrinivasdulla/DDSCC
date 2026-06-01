@@ -39,11 +39,15 @@ export async function GET() {
       return NextResponse.json({ error: 'Session invalid' }, { status: 401 });
     }
 
+    const startTime = performance.now();
+
     await dbConnect();
     const user = await User.findById(decoded.userId);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
+
+    const dbAndUserFetchTime = performance.now();
 
     // Determine the calendar sweep boundaries
     // We sweep from the user's registration date up to yesterday
@@ -60,15 +64,15 @@ export async function GET() {
     if (registerStr < todayStr) {
       const datesToSweep = getDatesInRange(registerStr, yesterdayStr);
 
-      for (const dateStr of datesToSweep) {
-        const existing = await DailyMission.findOne({
-          userId: user._id,
-          dateString: dateStr,
-        });
+      // Bulk fetch all existing missions to build a fast look-up Set in O(1) time
+      const existingMissions = await DailyMission.find({ userId: user._id });
+      const existingDatesSet = new Set(existingMissions.map(m => m.dateString));
 
-        // If no daily mission exists for a calendar date, insert a missed record
-        if (!existing) {
-          await DailyMission.create({
+      const missionsToCreate: any[] = [];
+
+      for (const dateStr of datesToSweep) {
+        if (!existingDatesSet.has(dateStr)) {
+          missionsToCreate.push({
             userId: user._id,
             dateString: dateStr,
             isCompleted: true,
@@ -78,7 +82,13 @@ export async function GET() {
           missedDaysAddedCount++;
         }
       }
+
+      if (missionsToCreate.length > 0) {
+        await DailyMission.insertMany(missionsToCreate);
+      }
     }
+
+    const sweepTime = performance.now();
 
     // Chronologically recalculate current & longest streaks
     const allMissions = await DailyMission.find({ userId: user._id }).sort({ dateString: 1 });
@@ -140,6 +150,15 @@ export async function GET() {
     user.currentStreak = currentStreak;
     user.longestStreak = Math.max(user.longestStreak || 0, longestStreak);
     await user.save();
+
+    const endTime = performance.now();
+    const duration = endTime - startTime;
+
+    console.log(`[PERFORMANCE LOG] /api/sync-streaks:
+    - dbConnect & User Fetch: ${(dbAndUserFetchTime - startTime).toFixed(2)}ms
+    - Calendar Sweep (Set lookup & insertMany): ${(sweepTime - dbAndUserFetchTime).toFixed(2)}ms
+    - Streak Calculation & Save: ${(endTime - sweepTime).toFixed(2)}ms
+    - Total API Sync Duration: ${duration.toFixed(2)}ms`);
 
     return NextResponse.json({
       success: true,

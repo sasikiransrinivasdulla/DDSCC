@@ -57,13 +57,15 @@ function AuthContent() {
       }
 
       // Small delay for smooth toast reading before redirect
+      const redirectStartTime = performance.now();
       setTimeout(() => {
+        console.log(`[PERFORMANCE LOG] Initiating router push. Delay time: ${(performance.now() - redirectStartTime).toFixed(2)}ms`);
         if (data.user?.isFirstLogin) {
           router.push('/onboarding');
         } else {
           router.push('/dashboard');
         }
-      }, 800);
+      }, 150);
     } catch (error) {
       console.error('Auth error:', error);
       toast.error('Network error. Failed to establish connection.');

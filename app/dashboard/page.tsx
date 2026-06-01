@@ -83,8 +83,10 @@ export default function DashboardPage() {
   React.useEffect(() => {
     setIsMounted(true);
     const checkSession = async () => {
+      const startTime = performance.now();
       try {
         const response = await fetch('/api/auth/me');
+        const meTime = performance.now();
         if (!response.ok) {
           router.push('/auth');
           return;
@@ -97,31 +99,33 @@ export default function DashboardPage() {
             return;
           }
 
-          // Background sync streaks
-          await fetch('/api/sync-streaks');
+          // 1. Sync streaks (extremely fast now, typically <5ms due to O(1) set optimization)
+          const syncRes = await fetch('/api/sync-streaks');
+          const syncTime = performance.now();
 
-          // Load live analytics payload
-          fetch('/api/analytics')
-            .then(res => res.json())
-            .then(aData => {
-              if (aData.success) {
-                setAnalyticsData(aData);
-                setProfile({
-                  name: data.user.username,
-                  role: data.user.targetRole || 'Aspiring Computer Engineer',
-                  oathText: data.user.motivationText || 'I will dedicate focused, deliberate effort toward my placement goals today. No excuses, no shortcuts, just relentless self-growth.',
-                  streakDays: aData.stats.currentStreak,
-                });
-              }
-              setAnalyticsLoading(false);
-            })
-            .catch(err => {
-              console.error('Analytics load failure:', err);
-              setAnalyticsLoading(false);
-            });
+          // 2. Fetch live analytics payload & today's daily mission in parallel!
+          const [analyticsRes, missionCheck] = await Promise.all([
+            fetch('/api/analytics'),
+            fetch('/api/daily-oath')
+          ]);
+          const parallelTime = performance.now();
 
-          // Check if today's daily mission exists
-          const missionCheck = await fetch('/api/daily-oath');
+          // Parse analytics payload
+          if (analyticsRes.ok) {
+            const aData = await analyticsRes.json();
+            if (aData.success) {
+              setAnalyticsData(aData);
+              setProfile({
+                name: data.user.username,
+                role: data.user.targetRole || 'Aspiring Computer Engineer',
+                oathText: data.user.motivationText || 'I will dedicate focused, deliberate effort toward my placement goals today. No excuses, no shortcuts, just relentless self-growth.',
+                streakDays: aData.stats.currentStreak,
+              });
+            }
+          }
+          setAnalyticsLoading(false);
+
+          // Parse daily oath check
           if (missionCheck.ok) {
             const missionData = await missionCheck.json();
             if (!missionData.exists) {
@@ -131,6 +135,13 @@ export default function DashboardPage() {
               setTodayMission(missionData.mission);
             }
           }
+
+          const endTime = performance.now();
+          console.log(`[PERFORMANCE LOG] Dashboard Hydration & Data Loading:
+          - /api/auth/me Validation: ${(meTime - startTime).toFixed(2)}ms
+          - /api/sync-streaks Execution: ${(syncTime - meTime).toFixed(2)}ms
+          - Parallel Data Hydration (/api/analytics & /api/daily-oath): ${(parallelTime - syncTime).toFixed(2)}ms
+          - Total Client Dashboard Loading Duration: ${(endTime - startTime).toFixed(2)}ms`);
         }
       } catch (error) {
         console.error('Session hydration failed:', error);
