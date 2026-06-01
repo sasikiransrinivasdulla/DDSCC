@@ -760,79 +760,91 @@ export default function DashboardPage() {
                     Retrieving activities from placement ledger...
                   </div>
                 ) : analyticsData?.activityTimeline && analyticsData.activityTimeline.length > 0 ? (
-                  <div className="relative border-l border-border-subtle/40 ml-3 pl-6 space-y-5 py-1">
-                    {analyticsData.activityTimeline.slice(0, 10).map((act: any) => {
-                      // Determine badge/color based on type
-                      let dotColor = 'bg-muted-text';
-                      let iconLabel = 'Commit';
-                      let bgTint = 'bg-[#060606]';
-                      let borderTint = 'border-border-subtle/30';
-                      if (act.type === 'missed') {
-                        dotColor = 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]';
-                        iconLabel = 'Decay';
-                        bgTint = 'bg-red-500/5';
-                        borderTint = 'border-red-500/20';
-                      } else if (act.type === 'eod') {
-                        dotColor = 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]';
-                        iconLabel = 'Seal';
-                        bgTint = 'bg-emerald-500/5';
-                        borderTint = 'border-emerald-500/20';
-                      } else if (act.type === 'dsa') {
-                        dotColor = 'bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.4)]';
-                        iconLabel = 'DSA';
-                        bgTint = 'bg-blue-500/5';
-                        borderTint = 'border-blue-500/20';
-                      } else if (act.type === 'dev' || act.type === 'github') {
-                        dotColor = 'bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.4)]';
-                        iconLabel = 'Dev';
-                        bgTint = 'bg-purple-500/5';
-                        borderTint = 'border-purple-500/20';
-                      } else if (act.type === 'skills') {
-                        dotColor = 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]';
-                        iconLabel = 'Skill';
-                        bgTint = 'bg-amber-500/5';
-                        borderTint = 'border-amber-500/20';
-                      } else if (act.type === 'aptitude') {
-                        dotColor = 'bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.4)]';
-                        iconLabel = 'Apt';
-                        bgTint = 'bg-indigo-500/5';
-                        borderTint = 'border-indigo-500/20';
-                      } else if (act.type === 'comm') {
-                        dotColor = 'bg-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.4)]';
-                        iconLabel = 'Comm';
-                        bgTint = 'bg-pink-500/5';
-                        borderTint = 'border-pink-500/20';
-                      } else if (act.type === 'mission') {
-                        dotColor = 'bg-primary-accent shadow-[0_0_8px_rgba(16,185,129,0.4)]';
-                        iconLabel = 'Oath';
-                        bgTint = 'bg-primary-accent/5';
-                        borderTint = 'border-primary-accent/20';
-                      }
-                      
-                      const dateObj = new Date(act.date);
-                      const formattedDate = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+                  <div>
+                    <div className="relative border-l border-border-subtle/40 ml-3 pl-6 space-y-5 py-1">
+                      {analyticsData.activityTimeline.slice(0, 5).map((act: any) => {
+                        // Determine badge/color based on type
+                        let dotColor = 'bg-muted-text';
+                        let iconLabel = 'Commit';
+                        let bgTint = 'bg-[#060606]';
+                        let borderTint = 'border-border-subtle/30';
+                        if (act.type === 'missed') {
+                          dotColor = 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]';
+                          iconLabel = 'Decay';
+                          bgTint = 'bg-red-500/5';
+                          borderTint = 'border-red-500/20';
+                        } else if (act.type === 'eod') {
+                          dotColor = 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.4)]';
+                          iconLabel = 'Seal';
+                          bgTint = 'bg-emerald-500/5';
+                          borderTint = 'border-emerald-500/20';
+                        } else if (act.type === 'dsa') {
+                          dotColor = 'bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.4)]';
+                          iconLabel = 'DSA';
+                          bgTint = 'bg-blue-500/5';
+                          borderTint = 'border-blue-500/20';
+                        } else if (act.type === 'dev' || act.type === 'github') {
+                          dotColor = 'bg-purple-400 shadow-[0_0_8px_rgba(192,132,252,0.4)]';
+                          iconLabel = 'Dev';
+                          bgTint = 'bg-purple-500/5';
+                          borderTint = 'border-purple-500/20';
+                        } else if (act.type === 'skills') {
+                          dotColor = 'bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.4)]';
+                          iconLabel = 'Skill';
+                          bgTint = 'bg-amber-500/5';
+                          borderTint = 'border-amber-500/20';
+                        } else if (act.type === 'aptitude') {
+                          dotColor = 'bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.4)]';
+                          iconLabel = 'Apt';
+                          bgTint = 'bg-indigo-500/5';
+                          borderTint = 'border-indigo-500/20';
+                        } else if (act.type === 'comm') {
+                          dotColor = 'bg-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.4)]';
+                          iconLabel = 'Comm';
+                          bgTint = 'bg-pink-500/5';
+                          borderTint = 'border-pink-500/20';
+                        } else if (act.type === 'mission') {
+                          dotColor = 'bg-primary-accent shadow-[0_0_8px_rgba(16,185,129,0.4)]';
+                          iconLabel = 'Oath';
+                          bgTint = 'bg-primary-accent/5';
+                          borderTint = 'border-primary-accent/20';
+                        }
+                        
+                        const dateObj = new Date(act.date);
+                        const formattedDate = dateObj.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 
-                      return (
-                        <div key={act.id} className="relative group">
-                          {/* Timeline bullet element */}
-                          <span className={`absolute -left-[30px] top-1.5 w-3 h-3 rounded-full border-2 border-background transition-all duration-300 group-hover:scale-125 ${dotColor}`} />
-                          
-                          <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3.5 rounded-xl border ${bgTint} ${borderTint} hover:border-primary-accent/25 hover:bg-[#080808]/80 transition-all duration-300`}>
-                            <div className="space-y-1">
-                              <p className="text-xs font-bold text-white tracking-wide">
-                                {act.message}
-                              </p>
-                              <span className="text-[8.5px] uppercase font-extrabold text-muted-text tracking-widest block font-heading">
-                                Type: {iconLabel}
+                        return (
+                          <div key={act.id} className="relative group">
+                            {/* Timeline bullet element */}
+                            <span className={`absolute -left-[30px] top-1.5 w-3 h-3 rounded-full border-2 border-background transition-all duration-300 group-hover:scale-125 ${dotColor}`} />
+                            
+                            <div className={`flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 p-3.5 rounded-xl border ${bgTint} ${borderTint} hover:border-primary-accent/25 hover:bg-[#080808]/80 transition-all duration-300`}>
+                              <div className="space-y-1">
+                                <p className="text-xs font-bold text-white tracking-wide">
+                                  {act.message}
+                                </p>
+                                <span className="text-[8.5px] uppercase font-extrabold text-muted-text tracking-widest block font-heading">
+                                  Type: {iconLabel}
+                                </span>
+                              </div>
+                              <span className="text-[9px] uppercase font-bold tracking-widest text-[#9E9E9E] shrink-0 font-mono">
+                                🗓️ {formattedDate}
                               </span>
                             </div>
-                            <span className="text-[9px] uppercase font-bold tracking-widest text-[#9E9E9E] shrink-0 font-mono">
-                              🗓️ {formattedDate}
-                            </span>
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
+                    {analyticsData.activityTimeline.length > 5 && (
+                      <div className="mt-5 pt-4 border-t border-border-subtle/20 flex justify-end">
+                        <button
+                          onClick={() => router.push('/profile')}
+                          className="text-[10px] uppercase font-extrabold tracking-widest font-heading text-primary-accent hover:text-white flex items-center gap-1 transition-colors cursor-pointer animate-pulse"
+                        >
+                          View Full Timeline →
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="text-center py-8 bg-[#060606] rounded-xl border border-border-subtle/40 p-4">
