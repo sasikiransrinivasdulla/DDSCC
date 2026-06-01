@@ -1,0 +1,53 @@
+'use client';
+
+import { usePathname, useSearchParams } from 'next/navigation';
+import { useEffect, Suspense } from 'react';
+import Script from 'next/script';
+
+function NavigationEvents({ GA_MEASUREMENT_ID }: { GA_MEASUREMENT_ID: string }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (!GA_MEASUREMENT_ID) return;
+
+    const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
+    
+    if (typeof window !== 'undefined' && typeof window.gtag === 'function') {
+      window.gtag('config', GA_MEASUREMENT_ID, {
+        page_path: url,
+      });
+    }
+  }, [pathname, searchParams, GA_MEASUREMENT_ID]);
+
+  return null;
+}
+
+export default function GoogleAnalytics({ GA_MEASUREMENT_ID }: { GA_MEASUREMENT_ID: string }) {
+  if (!GA_MEASUREMENT_ID) return null;
+
+  return (
+    <>
+      {/* Load GA4 standard tags with afterInteractive strategy */}
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${GA_MEASUREMENT_ID}', {
+            page_path: window.location.pathname,
+          });
+        `}
+      </Script>
+      
+      {/* Route event updates wrapper loaded suspense-safely */}
+      <Suspense fallback={null}>
+        <NavigationEvents GA_MEASUREMENT_ID={GA_MEASUREMENT_ID} />
+      </Suspense>
+    </>
+  );
+}

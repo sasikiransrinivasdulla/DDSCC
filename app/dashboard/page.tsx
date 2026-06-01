@@ -9,6 +9,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { ProgressCircle } from '@/components/ui/progress';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { trackEvent } from '@/lib/gtag';
 import { 
   Flame, 
   Award, 
@@ -121,6 +122,15 @@ export default function DashboardPage() {
                 oathText: data.user.motivationText || 'I will dedicate focused, deliberate effort toward my placement goals today. No excuses, no shortcuts, just relentless self-growth.',
                 streakDays: aData.stats.currentStreak,
               });
+
+              // Track dynamic achievement unlocks in GA4
+              if (Array.isArray(aData.achievements)) {
+                aData.achievements.forEach((ach: any) => {
+                  if (ach.unlocked) {
+                    trackEvent('achievement_unlocked', 'Achievement', ach.title);
+                  }
+                });
+              }
             }
           }
           setAnalyticsLoading(false);

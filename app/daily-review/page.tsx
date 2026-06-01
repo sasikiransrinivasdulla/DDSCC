@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { trackEvent } from '@/lib/gtag';
 import { 
   BookOpen, 
   Code2, 
@@ -194,6 +195,7 @@ export default function DailyReviewPage() {
       // Automatically trigger a streak calculation refresh as well
       await fetch('/api/sync-streaks');
 
+      trackEvent('eod_reflection_sealed', 'Reflection', undefined, data.score);
       toast.success('Reflection Sealed! 🌟', {
         description: `Your DDSCC score for today is ${data.score}%. Beast mode recorded!`,
       });

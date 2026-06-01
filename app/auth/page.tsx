@@ -10,19 +10,17 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter }
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
 import { Shield, Sparkles, LogIn, UserPlus } from 'lucide-react';
+import { trackEvent } from '../../lib/gtag';
 
 function AuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const initialTab = searchParams.get('mode') === 'signup' ? 'signup' : 'login';
   
-  // Set tab based on query param, default to 'login'
-  const initialTab = searchParams.get('tab') === 'signup' ? 'signup' : 'login';
   const [activeTab, setActiveTab] = React.useState<'login' | 'signup'>(initialTab);
-  const [isLoading, setIsLoading] = React.useState(false);
-
-  // Form states
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,11 +45,13 @@ function AuthContent() {
       }
 
       if (activeTab === 'login') {
+        trackEvent('login', 'User', username);
         toast.success('Access Granted', {
           description: `Entering placement accountability dashboard. Welcome back, ${data.user?.username || username}.`,
         });
       } else {
-        toast.success('Preparation Chamber Established', {
+        trackEvent('signup', 'User', username);
+        toast.success('Preparation Covenant Established', {
           description: `Your quiet progression logs have been initialized. Welcome, ${username}.`,
         });
       }

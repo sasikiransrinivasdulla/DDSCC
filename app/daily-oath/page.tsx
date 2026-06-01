@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'sonner';
+import { trackEvent } from '@/lib/gtag';
 import { 
   BookOpen, 
   Code2, 
@@ -170,6 +171,7 @@ export default function DailyOathPage() {
         return;
       }
 
+      trackEvent('morning_oath_sealed', 'Oath');
       toast.success('Morning Oath Sealed!', {
         description: 'Today is officially registered. Relentless execution starts now! 🚀',
       });

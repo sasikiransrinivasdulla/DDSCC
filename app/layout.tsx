@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
+import GoogleAnalytics from "../components/analytics/GoogleAnalytics";
 import "./globals.css";
 
 const inter = Inter({
@@ -32,6 +33,9 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} h-full antialiased dark`}>
       <body className="min-h-full flex flex-col bg-background text-primary-text font-sans selection:bg-primary-accent/30 selection:text-white overflow-x-hidden">
+        {/* Google Analytics 4 Telemetry */}
+        <GoogleAnalytics GA_MEASUREMENT_ID={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-L2B326LE04"} />
+
         {/* Subtle grid background */}
         <div className="fixed inset-0 bg-grid-pattern pointer-events-none z-0 opacity-50" />
         
