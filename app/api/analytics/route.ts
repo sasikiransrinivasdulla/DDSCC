@@ -519,7 +519,7 @@ export async function GET() {
     journeyTimeline.push({
       date: new Date(user.createdAt).toISOString().split('T')[0],
       title: 'Joined DDSCC',
-      desc: 'Sasi entered the Placement Preparation Covenant.',
+      desc: `${user.username} entered the Placement Preparation Covenant.`,
       type: 'system',
       icon: '🚀',
     });
@@ -652,7 +652,7 @@ export async function GET() {
     if (todayMission) {
       if (todayMission.isCompleted) {
         if (todayMission.ddsccScore >= 85) {
-          motivationSlogan = "You're becoming harder to stop. Relentless execution, Sasi!";
+          motivationSlogan = `You're becoming harder to stop. Relentless execution, ${user.username}!`;
         } else if (todayMission.ddsccScore < 60) {
           motivationSlogan = "Progress begins again tomorrow. Rest, recalibrate, and rise.";
         } else {

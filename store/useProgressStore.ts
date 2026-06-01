@@ -35,7 +35,7 @@ const initialHistory: HistoryLog[] = [
 
 export const useProgressStore = create<ProgressState>((set) => ({
   profile: {
-    name: 'Sasi',
+    name: 'Candidate',
     role: 'Aspiring Computer Engineer',
     streakDays: 14,
     joinedAt: '2026-05-16',
